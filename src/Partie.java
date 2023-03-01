@@ -24,6 +24,7 @@ public class Partie implements Constante {
         petiteBlindeActuelle = -1;
         compteurTour = -1;
         pot = -1;
+        indexHautPaquet = -1;
     }
 
     public void startPartie(){
@@ -42,16 +43,22 @@ public class Partie implements Constante {
         petiteBlindeActuelle = 5;
         grosseBlindeActuelle = 10;
 
+        //init paquet
+        creerPaquet();
+
         //boucle de jeu
         while (!aUnGagnant()){
             manche();
             //mettre a jour les blinde ici si besoin
         }
 
-
     }
 
     public Carte[] getPaquet() {return paquet;  }
+
+    public Joueur[] getJoueurs() {
+        return joueurs;
+    }
 
     public void creerPaquet(){
         String[] couleurs = {COEUR, CARREAU, TREFLE, PIQUE};
@@ -87,21 +94,21 @@ public class Partie implements Constante {
         pot = 0;
         minimumMise = grosseBlindeActuelle;
         compteurTour = 0;
-        indexHautPaquet = 52;
+        indexHautPaquet = 51;
         melangerCarte();
         distribuerCarte();
 
 
     }
 
-    private void melangerCarte(){
+    public void melangerCarte(){
 
         Carte[] newPaquet = new Carte[52];
         int placer = 0;
         int index;
 
         while (placer < 52){
-            index = (int) (Math.random() * 53);
+            index = (int) (Math.random() * 52);
             if (newPaquet[index] == null){
                 newPaquet[index] = paquet[placer];
                 placer++;
@@ -119,9 +126,10 @@ public class Partie implements Constante {
         return carte;
     }
 
-    private void distribuerCarte(){
+    public void distribuerCarte(){
 
         for (int t = 1 ; t <= 2 ; t++){
+            System.out.println(t);
             for (Joueur j : joueurs) {
                 j.recoiCarte(piocheHautDuPaquet());
             }

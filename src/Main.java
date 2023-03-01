@@ -12,16 +12,6 @@ public class Main {
             nombreJ = in.nextInt();
         }while (nombreJ < 2 || nombreJ > 6);
 
-        partie = new Partie(nombreJ);
-
-        partie.creerPaquet();
-
-        for (Carte carte :
-                partie.getPaquet()) {
-            System.out.println(carte);
-        }
-
-
 
     }
 }

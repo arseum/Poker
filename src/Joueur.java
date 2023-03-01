@@ -24,8 +24,16 @@ public class Joueur {
         this.blinde = blinde;
     }
 
+    public String getPseudo() {
+        return pseudo;
+    }
+
+    public Carte[] getMain() {
+        return main;
+    }
+
     public void recoiCarte(Carte carte){
-        if (main[0] != null || main[1] != null) {
+        if (main[0] == null || main[1] == null) {
             if (main[0] == null)
                 main[0] = carte;
             else
