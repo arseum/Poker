@@ -46,4 +46,5 @@ public class Joueur {
         return "";
     }
 
+    public void estMort() {this.estVivant = false;  }
 }
