@@ -9,6 +9,7 @@ public class Partie implements Constante {
     private int compteurTour;
     private int pot;
     private int minimumMise;
+    private int indexHautPaquet; // index de la prochaine carte a distribuer/retourner/cramer
     private Carte[] paquet;
     private Joueur[] joueurs;
     private Carte[] riviere;
@@ -72,8 +73,10 @@ public class Partie implements Constante {
         pot = 0;
         minimumMise = grosseBlindeActuelle;
         compteurTour = 0;
+        indexHautPaquet = 52;
         melangerCarte();
-        //distribuer carte
+        distribuerCarte();
+
 
     }
 
@@ -92,6 +95,23 @@ public class Partie implements Constante {
         }
 
         paquet = newPaquet;
+
+    }
+
+    private Carte piocheHautDuPaquet(){
+        Carte carte = paquet[indexHautPaquet];
+        paquet[indexHautPaquet] = null;
+        indexHautPaquet--;
+        return carte;
+    }
+
+    private void distribuerCarte(){
+
+        for (int t = 1 ; t <= 2 ; t++){
+            for (Joueur j : joueurs) {
+                j.recoiCarte(piocheHautDuPaquet());
+            }
+        }
 
     }
 

@@ -23,4 +23,14 @@ public class Joueur {
     public void setBlinde(int blinde) {
         this.blinde = blinde;
     }
+
+    public void recoiCarte(Carte carte){
+        if (main[0] != null || main[1] != null) {
+            if (main[0] == null)
+                main[0] = carte;
+            else
+                main[1] = carte;
+        }else
+            System.err.println("Erreur! " + pseudo + " a deja 2 cartes en main!");
+    }
 }
