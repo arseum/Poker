@@ -5,5 +5,6 @@ public interface Constante {
     final String TREFLE = "trefle";
     final String COEUR = "coeur";
 
+    final int jetonPourPartieNormal = 2000;
 
 }
