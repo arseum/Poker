@@ -21,4 +21,7 @@ public class Partie {
         compteurTour = -1;
         pot = -1;
     }
+
+    public
+
 }
