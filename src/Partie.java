@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Partie implements Constante {
@@ -131,7 +130,7 @@ public class Partie implements Constante {
         for (int t = 1 ; t <= 2 ; t++){
             System.out.println(t);
             for (Joueur j : joueurs) {
-                j.recoiCarte(piocheHautDuPaquet());
+                j.recoitCarte(piocheHautDuPaquet());
             }
         }
 

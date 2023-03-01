@@ -32,7 +32,7 @@ public class Joueur {
         return main;
     }
 
-    public void recoiCarte(Carte carte){
+    public void recoitCarte(Carte carte){
         if (main[0] == null || main[1] == null) {
             if (main[0] == null)
                 main[0] = carte;
@@ -41,4 +41,9 @@ public class Joueur {
         }else
             System.err.println("Erreur! " + pseudo + " a deja 2 cartes en main!");
     }
+
+    public String afficheSesCarte(){
+        return "";
+    }
+
 }
