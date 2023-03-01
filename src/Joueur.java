@@ -4,6 +4,7 @@ public class Joueur {
     private int totalJeton;
     private int blinde; //0 = pas de blinde, 1 = petite blinde, 2 = grosse blinde
     private boolean estCouche;
+    private boolean estVivant;
     private Carte[] main;
 
     public Joueur(String pseudo, int totalJeton) {
@@ -12,7 +13,10 @@ public class Joueur {
         blinde = 0;
         estCouche = false;
         main = new Carte[2];
+        estVivant = true;
     }
 
-
+    public boolean isEstVivant() {
+        return estVivant;
+    }
 }
