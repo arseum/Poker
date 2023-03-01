@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class Partie {
 
     // -1 = non defini
@@ -11,9 +13,9 @@ public class Partie {
     private Carte[] riviere;
 
 
-    public Partie(int nombreJouer) {
+    public Partie(int nombreJoueur) {
         paquet = new Carte[52];
-        joueurs = new Joueur[nombreJouer];
+        joueurs = new Joueur[nombreJoueur];
         riviere = new Carte[5];
         minimumMise = -1;
         grosseBlindeActuelle = -1;
@@ -22,6 +24,15 @@ public class Partie {
         pot = -1;
     }
 
-    public
+    public void startPartie(){
+
+        String pseudo;
+        Scanner in = new Scanner(System.in).useDelimiter("\n");
+
+        for (int i = 0 ; i < joueurs.length ; i++) {
+            System.out.println("joueur n°"+ (i+1) + " entrez votre pseudo :");
+        }
+
+    }
 
 }
