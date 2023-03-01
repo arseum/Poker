@@ -51,6 +51,20 @@ public class Partie implements Constante {
 
     }
 
+    public Carte[] getPaquet() {return paquet;  }
+
+    public void creerPaquet(){
+        String[] couleurs = {COEUR, CARREAU, TREFLE, PIQUE};
+        int cpt = 0;
+
+        for (int i = 1; i < 14; i++) {
+            for (int j = 0; j < 4; j++){
+                paquet[cpt] = new Carte(i,couleurs[j]);
+                cpt++;
+            }
+        }
+    }
+
     /**
      * fonction qui parcours la liste de joueur et verifie si il y a un gaganat dans la partie
      * @return true si il y a plus que un joueur en vie
