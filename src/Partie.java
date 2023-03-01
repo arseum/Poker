@@ -72,8 +72,8 @@ public class Partie implements Constante {
         pot = 0;
         minimumMise = grosseBlindeActuelle;
         compteurTour = 0;
-
-
+        melangerCarte();
+        //distribuer carte
 
     }
 
@@ -84,8 +84,14 @@ public class Partie implements Constante {
         int index;
 
         while (placer < 52){
-            index = (int) Math.random() * 53 + 1
+            index = (int) (Math.random() * 53);
+            if (newPaquet[index] == null){
+                newPaquet[index] = paquet[placer];
+                placer++;
+            }
         }
+
+        paquet = newPaquet;
 
     }
 

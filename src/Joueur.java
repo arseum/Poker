@@ -19,4 +19,8 @@ public class Joueur {
     public boolean isEstVivant() {
         return estVivant;
     }
+
+    public void setBlinde(int blinde) {
+        this.blinde = blinde;
+    }
 }
