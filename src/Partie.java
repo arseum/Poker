@@ -1,6 +1,7 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Partie {
+public class Partie implements Constante {
 
     // -1 = non defini
     private int petiteBlindeActuelle;
@@ -33,6 +34,21 @@ public class Partie {
             System.out.println("joueur n°"+ (i+1) + " entrez votre pseudo :");
         }
 
+
+    }
+
+    public Carte[] getPaquet() {        return paquet;    }
+
+    public void creerPaquet(){
+        String[] couleurs = {COEUR, CARREAU, TREFLE, PIQUE};
+        int cpt = 0;
+
+        for (int i = 1; i < 14; i++) {
+            for (int j = 0; j < 4; j++){
+                paquet[cpt] = new Carte(i,couleurs[j]);
+                cpt++;
+            }
+        }
     }
 
 }
