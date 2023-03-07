@@ -1,10 +1,12 @@
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Partie implements Constante {
 
     // -1 = non defini
     private int petiteBlindeActuelle;
-    private int grosseBlindeActuelle;
+    private int grosseBlindeActuelle; //la groose blinde est toujours egale a 2X la petite blinde
     private int compteurTour;
     private int pot;
     private int minimumMise;
@@ -94,8 +96,30 @@ public class Partie implements Constante {
         minimumMise = grosseBlindeActuelle;
         compteurTour = 0;
         indexHautPaquet = 51;
+        ArrayList<Joueur> fileJoueur = new ArrayList<>(); //FIFO - on push a la fin et on recupére a l'index 0
+
+        //mise en place de la fifo + recuperation des blindes
+        int i = 0;boolean krakzi = false;
+        while (fileJoueur.size() != joueurs.length){
+            if (joueurs[i].getBlinde() == 2){
+                krakzi = true;
+            }
+
+            if (krakzi) {
+                pot += joueurs[i].poseJeton(petiteBlindeActuelle);
+                fileJoueur.add(joueurs[i]);
+            }
+
+            i++;
+            if (i == joueurs.length)
+                i = 0;
+        }
+        //a partir d'ici il faut veillez a ce que le joueur a qui c'est le tour de parler est a la tête de la FIFO
+
+        //debut
         melangerCarte();
         distribuerCarte();
+        //boucle de parole
 
 
     }

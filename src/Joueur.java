@@ -32,6 +32,21 @@ public class Joueur {
         return main;
     }
 
+    public int getBlinde() {
+        return blinde;
+    }
+
+    /**
+     * actuellement utilisé pour recupérer les blindes
+     * peut etre renomé par 'deposeBlinde' si n'est pas utilisé par l'avenir
+     */
+    public int poseJeton(int petiteBlinde){
+        int t = petiteBlinde * blinde;
+        totalJeton -= t;
+        System.out.println("\n"+pseudo+" pose " + t + " jetons pour la blinde.\n"); //debug
+        return t;
+    }
+
     public void recoitCarte(Carte carte){
         if (main[0] == null || main[1] == null) {
             if (main[0] == null)
