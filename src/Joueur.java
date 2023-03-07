@@ -43,7 +43,7 @@ public class Joueur {
     public int poseJeton(int petiteBlinde){
         int t = petiteBlinde * blinde;
         totalJeton -= t;
-        System.out.println("\n"+pseudo+" pose " + t + " jetons pour la blinde.\n"); //debug
+        System.out.println("\n"+pseudo+" pose " + t + " jetons pour la blinde.\n"); //debug // ?
         return t;
     }
 

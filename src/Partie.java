@@ -51,6 +51,7 @@ public class Partie implements Constante {
         while (!aUnGagnant()){
             manche();
             //mettre a jour les blinde ici si besoin
+            // faut pas mettre les blindes en arg de manche ?
         }
 
     }
@@ -99,7 +100,9 @@ public class Partie implements Constante {
         ArrayList<Joueur> fileJoueur = new ArrayList<>(); //FIFO - on push a la fin et on recupére a l'index 0
 
         //mise en place de la fifo + recuperation des blindes
-        int i = 0;boolean krakzi = false;
+        int i = 0;
+        boolean krakzi = false;
+
         while (fileJoueur.size() != joueurs.length){
             if (joueurs[i].getBlinde() == 2){
                 krakzi = true;
@@ -114,7 +117,7 @@ public class Partie implements Constante {
             if (i == joueurs.length)
                 i = 0;
         }
-        //a partir d'ici il faut veillez a ce que le joueur a qui c'est le tour de parler est a la tête de la FIFO
+        //a partir d'ici il faut veiller a ce que le joueur a qui c'est le tour de parler est a la tête de la FIFO
 
         //debut
         melangerCarte();
@@ -156,6 +159,28 @@ public class Partie implements Constante {
             for (Joueur j : joueurs) {
                 j.recoitCarte(piocheHautDuPaquet());
             }
+        }
+
+    }
+
+    public void passerJoueurSuivant(ArrayList<Joueur> fileJoueur){
+        Joueur joueurPasse = fileJoueur.get(0);
+
+        fileJoueur.set(0,null);
+        for (int i =1; i< fileJoueur.size(); i++){
+            fileJoueur.set(i-1, fileJoueur.get(i));
+
+        }
+        fileJoueur.add(joueurPasse);
+    }
+
+    public void tourDeJeu(){
+        int i =0;
+        if (compteurTour == 0){
+            if (joueurs[i].getBlinde() == 1){
+
+            }
+
         }
 
     }
