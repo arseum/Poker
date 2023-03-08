@@ -11,18 +11,18 @@ public class Carte implements Constante {
 
         valeur = "   " + this.valeur + "   ";
 
-        if (this.valeur < 10 && this.valeur>1){
-            valeur = "    " + this.valeur + "   ";}
-         else if (this.valeur == 10) {
-            valeur = "   " + this.valeur + "   ";}
-         else if(valeur.equals("   11   ")){
-           valeur = "valet de"; }
-        else if (valeur.equals("   12   ")) {
-            valeur = "reine de";}
-        else if (valeur.equals("   1   ")) {
-            valeur = "  as de ";}
-        else if (valeur.equals("   13   ")) {
-            valeur = " roi de ";}
+        if (this.valeur < 10 && this.valeur>1)
+            valeur = "    " + this.valeur + "   ";
+        else if (this.valeur == 10)
+            valeur = "   " + this.valeur + "   ";
+        else if(valeur.equals("   11   "))
+            valeur = "valet de";
+        else if (valeur.equals("   12   "))
+            valeur = "reine de";
+        else if (valeur.equals("   1   "))
+            valeur = "  as de ";
+        else if (valeur.equals("   13   "))
+            valeur = " roi de ";
 
         String couleur;
 

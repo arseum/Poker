@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Partie implements Constante {
@@ -56,10 +55,18 @@ public class Partie implements Constante {
 
     }
 
-    public Carte[] getPaquet() {return paquet;  }
+    public Carte[] getPaquet() {return paquet;}
 
     public Joueur[] getJoueurs() {
         return joueurs;
+    }
+
+    private boolean auMoin2JoueurPasCoucher(){
+        int nbJoueurPasCoucher = 0;
+        for (Joueur j : joueurs)
+            if (!j.isEstCouche())
+                nbJoueurPasCoucher++;
+        return nbJoueurPasCoucher >= 2;
     }
 
     public void creerPaquet(){
@@ -97,20 +104,23 @@ public class Partie implements Constante {
         minimumMise = grosseBlindeActuelle;
         compteurTour = 0;
         indexHautPaquet = 51;
+        boolean relance;
+        int nbSuiviRequis; // une fois que ce nombre est a 0 on peut retourner les carte et passer au tour de table suivant
         ArrayList<Joueur> fileJoueur = new ArrayList<>(); //FIFO - on push a la fin et on recupére a l'index 0
+        //si le joueur est present dans la fifo c'est qu'il n'est pas couché
 
-        //mise en place de la fifo + recuperation des blindes
+        //mise en place de la fifo
         int i = 0;
         boolean krakzi = false;
 
         while (fileJoueur.size() != joueurs.length){
-            if (joueurs[i].getBlinde() == 2){
-                krakzi = true;
+            if (krakzi) {
+                joueurs[i].poseBlinde(petiteBlindeActuelle);
+                fileJoueur.add(joueurs[i]);
             }
 
-            if (krakzi) {
-                pot += joueurs[i].poseJeton(petiteBlindeActuelle);
-                fileJoueur.add(joueurs[i]);
+            if (joueurs[i].getBlinde() == 2){
+                krakzi = true;
             }
 
             i++;
@@ -122,9 +132,57 @@ public class Partie implements Constante {
         //debut
         melangerCarte();
         distribuerCarte();
-        //boucle de parole
+        while (compteurTour < 4 && auMoin2JoueurPasCoucher()) {
+            nbSuiviRequis = fileJoueur.size(); //personne n'a encore parlé
+            while (nbSuiviRequis != 0) {
+
+                //le joueur en tête de file parle
+                relance = fileJoueur.get(0).parle(petiteBlindeActuelle);
+
+                //maj de nbSuiviRequis en fonction de si le joueur a relancer ou pas
+                if (relance)
+                    nbSuiviRequis = fileJoueur.size() - 1;
+                else
+                    nbSuiviRequis--;
+
+                //maj de la fifo en fonction de si le joueur c'est coucher ou non
+                if (fileJoueur.get(0).isEstCouche())
+                    fileJoueur.remove(0);
+                else{
+                    fileJoueur.add(fileJoueur.get(0));
+                    fileJoueur.remove(0);
+                }
+            }
+
+            pot += rammasserJetonSurLaTable();
+
+            //retourner 3 ou 1 carte
+            if (compteurTour == 0) //3 cartes
+                for (int index = 0 ; index < 3 ; index++)
+                    riviere[index] = piocheHautDuPaquet();
+            else if (compteurTour < 3) // 1 cartes
+                riviere[compteurTour+2] = piocheHautDuPaquet();
 
 
+            //remettre en ordre la fifo en fonction de la petite blinde
+            while (fileJoueur.get(0).getBlinde() != 1){
+                fileJoueur.add(fileJoueur.get(0));
+                fileJoueur.remove(0);
+            }
+
+            compteurTour++;
+
+        }
+
+
+
+    }
+
+    private int rammasserJetonSurLaTable(){
+        int total = 0;
+        for (Joueur j : joueurs)
+            total += j.donneJetonPoser();
+        return total;
     }
 
     public void melangerCarte(){
