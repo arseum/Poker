@@ -12,6 +12,8 @@ public class Main {
             nombreJ = in.nextInt();
         }while (nombreJ < 2 || nombreJ > 6);
 
+        partie = new Partie(nombreJ);
+        partie.startPartie();
 
     }
 }

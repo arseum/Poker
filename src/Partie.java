@@ -30,27 +30,26 @@ public class Partie implements Constante {
     public void startPartie(){
 
         String pseudo;
-        Scanner in = new Scanner(System.in).useDelimiter("\n");
 
         //init des joueurs
         for (int i = 0 ; i < joueurs.length ; i++) {
             System.out.println("joueur n°"+ (i+1) + " entrez votre pseudo :");
             pseudo = in.next();
             joueurs[i] = new Joueur(pseudo,jetonPourPartieNormal);
+            System.out.println("joueur " + pseudo + " a bien été creer avec un total de " + jetonPourPartieNormal + " jetons! gl hf");
         }
 
         //init des blindes
         petiteBlindeActuelle = 5;
         grosseBlindeActuelle = 10;
-
-        //init paquet
-        creerPaquet();
+        tireAuSortBlinde();
 
         //boucle de jeu
         while (!aUnGagnant()){
             manche();
+            remiseEnEtat();
             //mettre a jour les blinde ici si besoin
-            // faut pas mettre les blindes en arg de manche ?
+            // faut pas mettre les blindes en arg de manche ? nan ce sont des attibuts
         }
 
     }
@@ -82,8 +81,8 @@ public class Partie implements Constante {
     }
 
     /**
-     * fonction qui parcours la liste de joueur et verifie si il y a un gaganat dans la partie
-     * @return true si il y a plus que un joueur en vie
+     * fonction qui parcours la liste de joueur et verifie si il y a un gagnant dans la partie
+     * @return true si il n'y a que un joueur en vie
      */
     private boolean aUnGagnant(){
         int nbdeTrue = 0;
@@ -95,16 +94,29 @@ public class Partie implements Constante {
     }
 
     /**
+     * methode qui permet de tirer au sort la petite blinde pour le debut de la partie
+     */
+    private void tireAuSortBlinde(){
+        int nbJoueur = joueurs.length;
+        int indexRandom = (int) (Math.random() * nbJoueur);
+        joueurs[indexRandom].setBlinde(1);
+        if (indexRandom  == joueurs.length - 1)
+            indexRandom = -1;
+        joueurs[indexRandom+1].setBlinde(2);
+    }
+
+    /**
      * methode qui permet le deroulement d'une manche
      */
     private void manche(){
 
         //init
         pot = 0;
-        minimumMise = grosseBlindeActuelle;
         compteurTour = 0;
         indexHautPaquet = 51;
         boolean relance;
+        int miseMinimalPourSuivre;
+        int nbJoeurEncoreEnVie;
         int nbSuiviRequis; // une fois que ce nombre est a 0 on peut retourner les carte et passer au tour de table suivant
         ArrayList<Joueur> fileJoueur = new ArrayList<>(); //FIFO - on push a la fin et on recupére a l'index 0
         //si le joueur est present dans la fifo c'est qu'il n'est pas couché
@@ -114,7 +126,7 @@ public class Partie implements Constante {
         boolean krakzi = false;
 
         while (fileJoueur.size() != joueurs.length){
-            if (krakzi) {
+            if (krakzi && joueurs[i].isEstVivant()) {
                 joueurs[i].poseBlinde(petiteBlindeActuelle);
                 fileJoueur.add(joueurs[i]);
             }
@@ -130,18 +142,23 @@ public class Partie implements Constante {
         //a partir d'ici il faut veiller a ce que le joueur a qui c'est le tour de parler est a la tête de la FIFO
 
         //debut
+        creerPaquet();
         melangerCarte();
         distribuerCarte();
         while (compteurTour < 4 && auMoin2JoueurPasCoucher()) {
+
+            miseMinimalPourSuivre = grosseBlindeActuelle;
             nbSuiviRequis = fileJoueur.size(); //personne n'a encore parlé
             while (nbSuiviRequis != 0) {
 
                 //le joueur en tête de file parle
-                relance = fileJoueur.get(0).parle(petiteBlindeActuelle);
+                relance = fileJoueur.get(0).parle(miseMinimalPourSuivre,riviere);
 
                 //maj de nbSuiviRequis en fonction de si le joueur a relancer ou pas
-                if (relance)
+                if (relance) {
                     nbSuiviRequis = fileJoueur.size() - 1;
+                    miseMinimalPourSuivre = fileJoueur.get(0).getJetonSurTable();
+                }
                 else
                     nbSuiviRequis--;
 
@@ -157,6 +174,7 @@ public class Partie implements Constante {
             pot += rammasserJetonSurLaTable();
 
             //retourner 3 ou 1 carte
+            piocheHautDuPaquet();
             if (compteurTour == 0) //3 cartes
                 for (int index = 0 ; index < 3 ; index++)
                     riviere[index] = piocheHautDuPaquet();
@@ -165,16 +183,54 @@ public class Partie implements Constante {
 
 
             //remettre en ordre la fifo en fonction de la petite blinde
-            while (fileJoueur.get(0).getBlinde() != 1){
-                fileJoueur.add(fileJoueur.get(0));
-                fileJoueur.remove(0);
+            nbJoeurEncoreEnVie = fileJoueur.size();
+            fileJoueur.clear();
+            krakzi = false;
+            i = 0;
+            while (fileJoueur.size() != nbJoeurEncoreEnVie){
+
+                if (joueurs[i].getBlinde() == 1){
+                    krakzi = true;
+                }
+
+                if (krakzi && !joueurs[i].isEstCouche() && joueurs[i].isEstVivant()) {
+                    fileJoueur.add(joueurs[i]);
+                }
+
+                i++;
+                if (i == joueurs.length)
+                    i = 0;
             }
 
             compteurTour++;
-
         }
 
+        if (compteurTour == 4 && auMoin2JoueurPasCoucher()){
+            System.out.println("il faut determiner le vainqueur entre :");
+            for (Joueur j : fileJoueur)
+                System.out.println(j.getPseudo());
+        }else{
+            System.out.println("c'est le joueur " + fileJoueur.get(0).getPseudo() + " qui a gagné cette manche !");
+        }
 
+        System.out.println("\nPartie test!\nAucun gain desolé la banque garde tout ^^ ");
+        System.out.println("\nVEullez patienter 10s le temps que l'ordi melange les cartes");
+
+        int millis = 5000;
+
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            // ...
+        }
+
+        System.out.println("Promis il ne triche pas ;)");
+
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            // ...
+        }
 
     }
 
@@ -219,6 +275,20 @@ public class Partie implements Constante {
             }
         }
 
+    }
+
+    /**
+     * methode qui permet de mettre a jour les booleans encore en vie et est coucher des joueurs
+     * elle gére tout l'entre 2 manche
+     */
+    private void remiseEnEtat(){
+        for (Joueur j : joueurs) {
+            if (j.getTotalJeton() == 0)
+                j.setEstVivant(false);
+            if (j.isEstVivant())
+                j.setEstCouche(false);
+        }
+        riviere = new Carte[5];
     }
 
     public void passerJoueurSuivant(ArrayList<Joueur> fileJoueur){

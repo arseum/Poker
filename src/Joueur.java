@@ -35,12 +35,28 @@ public class Joueur implements Constante{
         return pseudo;
     }
 
+    public void setEstVivant(boolean estVivant) {
+        this.estVivant = estVivant;
+    }
+
+    public int getTotalJeton() {
+        return totalJeton;
+    }
+
     public Carte[] getMain() {
         return main;
     }
 
     public int getBlinde() {
         return blinde;
+    }
+
+    public int getJetonSurTable() {
+        return jetonSurTable;
+    }
+
+    public void setEstCouche(boolean estCouche) {
+        this.estCouche = estCouche;
     }
 
     /**
@@ -70,8 +86,16 @@ public class Joueur implements Constante{
         return tampon;
     }
 
-    public String afficheSesCarte(){
-        return "";
+    public void afficheCarte(Carte[] cartes){
+
+        if(cartes.length != 2)
+            System.out.println("cartes du flop : ");
+        else
+            System.out.println("cartes de " + pseudo + " :");
+
+        for (Carte c : cartes)
+            System.out.println(c);
+
     }
 
     public void estMort() {this.estVivant = false;}
@@ -82,15 +106,22 @@ public class Joueur implements Constante{
      * @return false si le joueur suit ou se chouche et true si il decide de relancer (on doit alors refaire un tour de table)
      * @param minimumMise le nombre de jeton minimum a misé
      */
-    public boolean parle(int minimumMise){
+    public boolean parle(int minimumMise,Carte[] flop){
 
         int choix;
+        boolean relance;
 
         affichageDebutTour();
 
+        //affichage du flop + de l'etat des autres joueur + du pot/mises sur la table
+        //version beta:
+        afficheCarte(main);
+        if (flop.length != 0)
+            afficheCarte(flop);
+
         System.out.println(pseudo + " que voulez-vous faire?");
         System.out.println("1. Se coucher");
-        System.out.println("2. Suivre pour " + minimumMise + " jetons"); //il faudrait rajouter le nombre de jetons que le joueur doit rajouter pour suivre
+        System.out.println("2. Suivre pour " + (minimumMise-jetonSurTable) + " jetons");
         System.out.println("3. Relancer\n");
 
         System.out.print("Votre choix : ");
@@ -106,11 +137,26 @@ public class Joueur implements Constante{
             //simulation que le joueur jette ses cartes dans la defausse
             main[0] = null;
             main[1] = null;
+            relance = false;
         }else if (choix == 2){
-
+            jetonSurTable += minimumMise-jetonSurTable;
+            totalJeton -= minimumMise-jetonSurTable;
+            relance = false;
+        }else{
+            System.out.println("\nEntrez le montant");
+            System.out.println("votre choix doit etre compris entre " + (minimumMise*2) + " jetons et " + totalJeton + " jetons");
+            System.out.print("votre choix : ");
+            choix = in.nextInt();
+            while (choix < (minimumMise*2) || choix > totalJeton){
+                System.out.print("Resseyer : ");
+                choix = in.nextInt();
+            }
+            jetonSurTable += choix - jetonSurTable;
+            totalJeton -= choix - jetonSurTable;
+            relance = true;
         }
 
-        return true;
+        return relance;
 
     }
 
@@ -120,7 +166,7 @@ public class Joueur implements Constante{
     private void affichageDebutTour(){
         int nbEspaceEnMoin = 7 + pseudo.length();
 
-        ClearConsole();
+        ClearConsole(); // totalement useless
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"); //pour ne pas voire ce que le joueur precedant a fait
         System.out.println(" -----------------------------------------------------------");
         for (int i = 0 ; i < 2 ; i++) {
