@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class Joueur implements Constante{
 
@@ -19,6 +21,11 @@ public class Joueur implements Constante{
         jetonSurTable = 0;
     }
 
+    @Override
+    public String toString() {
+        return pseudo;
+    }
+
     public boolean isEstVivant() {
         return estVivant;
     }
@@ -37,6 +44,11 @@ public class Joueur implements Constante{
 
     public void setEstVivant(boolean estVivant) {
         this.estVivant = estVivant;
+    }
+
+    public void defausseSesCartes() {
+        main[0] = null;
+        main[1] = null;
     }
 
     public int getTotalJeton() {
@@ -80,6 +92,17 @@ public class Joueur implements Constante{
             System.err.println("Erreur! " + pseudo + " a deja 2 cartes en main!");
     }
 
+    /**
+     * permet d'affciher un rappel pour que le joueur sache si il est la grosse blinde/petite/rien
+     */
+    public void afficheLetatBlinde() {
+        if (blinde!=0)
+            System.out.println("\nRappel : vous etes la " + ((blinde == 1) ? "petite" : "grosse") + " blinde");
+        else
+            System.out.println("\nRappel : vous n'avez aucune blinde pour cette manche");
+
+    }
+
     public int donneJetonPoser(){
         int tampon = jetonSurTable;
         jetonSurTable = 0;
@@ -89,9 +112,9 @@ public class Joueur implements Constante{
     public void afficheCarte(Carte[] cartes){
 
         if(cartes.length != 2)
-            System.out.println("cartes du flop : ");
+            System.out.println("\ncartes du flop : ");
         else
-            System.out.println("cartes de " + pseudo + " :");
+            System.out.println("\ncartes de " + pseudo + " :");
 
         for (Carte c : cartes)
             System.out.println(c);
@@ -106,43 +129,51 @@ public class Joueur implements Constante{
      * @return false si le joueur suit ou se chouche et true si il decide de relancer (on doit alors refaire un tour de table)
      * @param minimumMise le nombre de jeton minimum a misé
      */
-    public boolean parle(int minimumMise,Carte[] flop){
+    public boolean parle(int minimumMise, Carte[] flop, int grosseBlinde, ArrayList<Joueur> joueurEnVie){
 
         int choix;
         boolean relance;
+
 
         affichageDebutTour();
 
         //affichage du flop + de l'etat des autres joueur + du pot/mises sur la table
         //version beta:
         afficheCarte(main);
-        if (flop.length != 0)
+        if (flop[0] != null)
             afficheCarte(flop);
+        else
+            afficheLetatBlinde();
 
+        System.out.println("\nvous avez " + jetonSurTable + " jetons deja mis sur la table");
+        System.out.println("Total de jetons actuel : " + totalJeton + " jetons");
+        System.out.println("list des joueurs vivants = " + joueurEnVie + "\n");
         System.out.println(pseudo + " que voulez-vous faire?");
-        System.out.println("1. Se coucher");
-        System.out.println("2. Suivre pour " + (minimumMise-jetonSurTable) + " jetons");
-        System.out.println("3. Relancer\n");
+        if (minimumMise != 0) {
+            System.out.println("1. Se coucher");
+            System.out.println("2. Suivre " + minimumMise + " jetons pour " + (minimumMise - jetonSurTable) + " jetons");
+            System.out.println("3. Relancer\n");
 
-        System.out.print("Votre choix : ");
-        choix = in.nextInt();
+            choix = demandeSaisieChoix(1,3);
+        }else{
+            System.out.println("1. check");
+            System.out.println("2. relancer (minimum " + grosseBlinde + " jetons)");
 
-        while (choix < 1 || choix > 3){
-            System.out.print("Resseyer : ");
-            choix = in.nextInt();
+            choix = demandeSaisieChoix(1,2);
+            choix++; //pour correspondre au ifelse qui suit
+            minimumMise = grosseBlinde/2; //de meme
         }
 
-        if (choix == 1){
+
+        if (choix == 1){ //se couche
             estCouche = true;
-            //simulation que le joueur jette ses cartes dans la defausse
-            main[0] = null;
-            main[1] = null;
+            defausseSesCartes();
             relance = false;
-        }else if (choix == 2){
-            jetonSurTable += minimumMise-jetonSurTable;
+        }else if (choix == 2){ //suit le minimum mise
             totalJeton -= minimumMise-jetonSurTable;
+            jetonSurTable += minimumMise-jetonSurTable;
             relance = false;
-        }else{
+        }else{ // relance
             System.out.println("\nEntrez le montant");
             System.out.println("votre choix doit etre compris entre " + (minimumMise*2) + " jetons et " + totalJeton + " jetons");
             System.out.print("votre choix : ");
@@ -151,8 +182,8 @@ public class Joueur implements Constante{
                 System.out.print("Resseyer : ");
                 choix = in.nextInt();
             }
-            jetonSurTable += choix - jetonSurTable;
             totalJeton -= choix - jetonSurTable;
+            jetonSurTable += choix - jetonSurTable;
             relance = true;
         }
 
@@ -161,12 +192,30 @@ public class Joueur implements Constante{
     }
 
     /**
+     * permet de demander la saisie d'un int en fonction d'un min et d'un max
+     * pour eviter la redonce.
+     */
+    private int demandeSaisieChoix(int min, int max){
+        int choix;
+
+        System.out.print("Votre choix : ");
+        choix = in.nextInt();
+
+        while (choix < min || choix > max){
+            System.out.print("Resseyer : ");
+            choix = in.nextInt();
+        }
+
+        return choix;
+    }
+
+    /**
      * petit affichage stylé pour annoncé le debut d'un tour
      */
     private void affichageDebutTour(){
         int nbEspaceEnMoin = 7 + pseudo.length();
+        String saisie;
 
-        ClearConsole(); // totalement useless
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"); //pour ne pas voire ce que le joueur precedant a fait
         System.out.println(" -----------------------------------------------------------");
         for (int i = 0 ; i < 2 ; i++) {
@@ -193,7 +242,12 @@ public class Joueur implements Constante{
             System.out.println("|");
         }
         System.out.println(" ----------------------------------------------------------- \n\n\n");
-        System.out.println("tapper entrer lorsque vous etes prêt.");
-        in.next();
+
+        do {
+            System.out.println("tapper ok lorsque vous etes prêt.");
+            saisie = in.next();
+        }while (!Objects.equals(saisie, "ok"));
+
+
     }
 }

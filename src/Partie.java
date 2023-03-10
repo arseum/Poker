@@ -145,14 +145,14 @@ public class Partie implements Constante {
         creerPaquet();
         melangerCarte();
         distribuerCarte();
+        miseMinimalPourSuivre = grosseBlindeActuelle;
         while (compteurTour < 4 && auMoin2JoueurPasCoucher()) {
 
-            miseMinimalPourSuivre = grosseBlindeActuelle;
             nbSuiviRequis = fileJoueur.size(); //personne n'a encore parlé
             while (nbSuiviRequis != 0) {
 
                 //le joueur en tête de file parle
-                relance = fileJoueur.get(0).parle(miseMinimalPourSuivre,riviere);
+                relance = fileJoueur.get(0).parle(miseMinimalPourSuivre,riviere,grosseBlindeActuelle,fileJoueur);
 
                 //maj de nbSuiviRequis en fonction de si le joueur a relancer ou pas
                 if (relance) {
@@ -169,6 +169,11 @@ public class Partie implements Constante {
                     fileJoueur.add(fileJoueur.get(0));
                     fileJoueur.remove(0);
                 }
+
+                //rare situation ou tout le monde se couche dés le premier tour de parole
+                //il faut alors pas que le dernier joueur(qui a free win du coup) puisse parler
+                if (fileJoueur.size() == 1)
+                    nbSuiviRequis = 0;
             }
 
             pot += rammasserJetonSurLaTable();
@@ -202,6 +207,7 @@ public class Partie implements Constante {
                     i = 0;
             }
 
+            miseMinimalPourSuivre = 0;
             compteurTour++;
         }
 
@@ -269,7 +275,6 @@ public class Partie implements Constante {
     public void distribuerCarte(){
 
         for (int t = 1 ; t <= 2 ; t++){
-            System.out.println(t);
             for (Joueur j : joueurs) {
                 j.recoitCarte(piocheHautDuPaquet());
             }
@@ -287,6 +292,7 @@ public class Partie implements Constante {
                 j.setEstVivant(false);
             if (j.isEstVivant())
                 j.setEstCouche(false);
+            j.defausseSesCartes();
         }
         riviere = new Carte[5];
     }
