@@ -125,14 +125,14 @@ public class Joueur implements Constante{
 
     /**
      * fonction qui gere l'IHM pour une parole d'un joueur
-     * cette version ne prend pas en compte le fait que le joueur peut suivre en fesant un tapis
-     * @return false si le joueur suit ou se chouche et true si il decide de relancer (on doit alors refaire un tour de table)
-     * @param minimumMise le nombre de jeton minimum a misé
+     * cette version ne prend pas en compte le fait que le joueur peut suivre en faisant un tapis
+     * @return false si le joueur suit ou se chouche et true s'il décide de relancer (on doit alors refaire un tour de table)
+     * @param minimumMise le nombre de jetons minimum à miser
      */
     public boolean parle(int minimumMise, Carte[] flop, int grosseBlinde, ArrayList<Joueur> joueurEnVie){
 
         int choix;
-        boolean relance;
+        boolean relance, checkTrue = false;
 
 
         affichageDebutTour();
@@ -160,8 +160,13 @@ public class Joueur implements Constante{
             System.out.println("2. relancer (minimum " + grosseBlinde + " jetons)");
 
             choix = demandeSaisieChoix(1,2);
+
+            if (choix==1){
+                checkTrue =true;
+            }
             choix++; //pour correspondre au ifelse qui suit
             minimumMise = grosseBlinde/2; //de meme
+
         }
 
 
@@ -169,19 +174,19 @@ public class Joueur implements Constante{
             estCouche = true;
             defausseSesCartes();
             relance = false;
-        }else if (choix == 2){ //suit le minimum mise
+        } else if (checkTrue) {
+            System.out.println("vous Checkez");
+            relance = false;
+
+        } else if (choix == 2){ //suit le minimum mise
             totalJeton -= minimumMise-jetonSurTable;
             jetonSurTable += minimumMise-jetonSurTable;
             relance = false;
         }else{ // relance
             System.out.println("\nEntrez le montant");
             System.out.println("votre choix doit etre compris entre " + (minimumMise*2) + " jetons et " + totalJeton + " jetons");
-            System.out.print("votre choix : ");
-            choix = in.nextInt();
-            while (choix < (minimumMise*2) || choix > totalJeton){
-                System.out.print("Resseyer : ");
-                choix = in.nextInt();
-            }
+
+            choix = demandeSaisieChoix(minimumMise*2,totalJeton);
             totalJeton -= choix - jetonSurTable;
             jetonSurTable += choix - jetonSurTable;
             relance = true;
@@ -193,7 +198,7 @@ public class Joueur implements Constante{
 
     /**
      * permet de demander la saisie d'un int en fonction d'un min et d'un max
-     * pour eviter la redonce.
+     * pour eviter la redondance.
      */
     private int demandeSaisieChoix(int min, int max){
         int choix;
@@ -202,7 +207,7 @@ public class Joueur implements Constante{
         choix = in.nextInt();
 
         while (choix < min || choix > max){
-            System.out.print("Resseyer : ");
+            System.out.print("Réesseyer : ");
             choix = in.nextInt();
         }
 

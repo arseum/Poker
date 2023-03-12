@@ -1,5 +1,6 @@
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Timer;
+
 
 public class Partie implements Constante {
 
@@ -30,13 +31,16 @@ public class Partie implements Constante {
     public void startPartie(){
 
         String pseudo;
+        int mancheNumero=1;
+        Timer timerGeneral;
+
 
         //init des joueurs
         for (int i = 0 ; i < joueurs.length ; i++) {
             System.out.println("joueur n°"+ (i+1) + " entrez votre pseudo :");
             pseudo = in.next();
             joueurs[i] = new Joueur(pseudo,jetonPourPartieNormal);
-            System.out.println("joueur " + pseudo + " a bien été creer avec un total de " + jetonPourPartieNormal + " jetons! gl hf");
+            System.out.println("joueur " + pseudo + " a bien été créé avec un total de " + jetonPourPartieNormal + " jetons! gl hf");
         }
 
         //init des blindes
@@ -44,15 +48,27 @@ public class Partie implements Constante {
         grosseBlindeActuelle = 10;
         tireAuSortBlinde();
 
+        timerGeneral= new Timer("timerGeneral");
+
+        //timerGeneral.scheduleAtFixedRate(,600000 ,600000 );
+        //jpensait que ct bien pr faire une tache tt les x temps mais peux pas executer de methodes avec
+        // dcp jsp jme suis arrété al
+
+
         //boucle de jeu
         while (!aUnGagnant()){
             manche();
             remiseEnEtat();
+            System.out.println(timerGeneral);
+            mancheNumero++;
+
             //mettre a jour les blinde ici si besoin
-            // faut pas mettre les blindes en arg de manche ? nan ce sont des attibuts
+            //B: faut pas mettre les blindes en arg de manche ?A: nan ce sont des attibuts / B: okay
         }
 
+        timerGeneral.cancel();
     }
+
 
     public Carte[] getPaquet() {return paquet;}
 
@@ -107,7 +123,7 @@ public class Partie implements Constante {
 
     /**
      * methode qui permet le deroulement d'une manche
-     */
+     */ //Grosse methode du prog
     private void manche(){
 
         //init
@@ -230,7 +246,7 @@ public class Partie implements Constante {
             // ...
         }
 
-        System.out.println("Promis il ne triche pas ;)");
+        System.out.println("Promis il ne triche pas.. ;)");
 
         try {
             Thread.sleep(millis);
@@ -297,6 +313,12 @@ public class Partie implements Constante {
         riviere = new Carte[5];
     }
 
+    public void doublerBlindes(){
+        petiteBlindeActuelle += petiteBlindeActuelle;
+        grosseBlindeActuelle += grosseBlindeActuelle;
+    }
+
+    /*
     public void passerJoueurSuivant(ArrayList<Joueur> fileJoueur){
         Joueur joueurPasse = fileJoueur.get(0);
 
@@ -307,16 +329,6 @@ public class Partie implements Constante {
         }
         fileJoueur.add(joueurPasse);
     }
-
-    public void tourDeJeu(){
-        int i =0;
-        if (compteurTour == 0){
-            if (joueurs[i].getBlinde() == 1){
-
-            }
-
-        }
-
-    }
+    */
 
 }
