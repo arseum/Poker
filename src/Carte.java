@@ -1,8 +1,20 @@
-public class Carte implements Constante {
+public class Carte implements Cloneable{
     private int valeur;
     private String couleur;
 
     public Carte(int valeur, String couleur){ this.couleur = couleur;  this.valeur = valeur; }
+
+    public int getValeur() {
+        return valeur;
+    }
+
+    public String getCouleur() {
+        return couleur;
+    }
+
+    public void setValeur(int valeur) {
+        this.valeur = valeur;
+    }
 
     @Override
     public String toString() {
@@ -28,9 +40,9 @@ public class Carte implements Constante {
 
         couleur = "   " + this.couleur + "  ";
 
-        if (this.couleur.equals(TREFLE)){
+        if (this.couleur.equals("trefle")){
             couleur = "  " + this.couleur + "  ";}
-        else if (this.couleur.equals(CARREAU)) {
+        else if (this.couleur.equals("carreau")) {
             couleur = "  " + this.couleur + " ";}
 
             return  "╔══════════╗\n" +
@@ -41,5 +53,15 @@ public class Carte implements Constante {
                     "║          ║\n"+
                     "╚══════════╝" ;
         }
+
+    public String affichangeLeger(){
+        return valeur + " de " + couleur;
     }
+
+    @Override
+    public Carte clone() throws CloneNotSupportedException {
+        return  (Carte)super.clone();
+    }
+
+}
     //╚ ╔  ═══║╗╝
