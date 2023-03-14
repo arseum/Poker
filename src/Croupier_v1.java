@@ -7,6 +7,8 @@ import java.util.Objects;
  */
 public class Croupier_v1 implements Constante {
 
+    public static ArrayList<ArrayList<Integer>> quinteMem = new ArrayList<>();
+
     /**
      * premiere version pensée par arsene
      * utilisation des paradigmes de diviser pour mieux regner, programmation dynamique, recursivité
@@ -31,8 +33,12 @@ public class Croupier_v1 implements Constante {
         for (Carte[] main : maintemp) {
             debug(main);
             System.out.println("test containtFlush = " + containtFlush(main));
-            System.out.println("test containtQuinte = " + containtQuinte(main));
+            System.out.println("test containtQuinte = " + containtQuinteDynamique(main));
+            System.out.println("test containtQuinte = " + containtQuinteDynamique(main));
         }
+
+        System.out.println();
+        System.out.println(quinteMem);
 
         //etape 1 : savoir la value de chaque main
 
@@ -76,14 +82,34 @@ public class Croupier_v1 implements Constante {
 
     }
 
+    public static int containtQuinteDynamique(Carte[] main) throws CloneNotSupportedException {
+
+        boolean estUneQuinte = false;
+        int index = 0;
+
+        while (!estUneQuinte && index < quinteMem.size()){
+            if (containtAll(main,quinteMem.get(0))) {
+                System.out.println("youpi!");
+                return 8;
+            }
+            else
+                index++;
+        }
+
+        return containtQuinte(main);
+
+    }
+
     /**
      * @param main main de 7 cartes / 5 cartes (on comprendra alors que le joueur a une flush)
      * @return 0 si ne contient pas de quinte sinon renvoie 8
-     * amelioration : la fonction devrait faire en sorte de sauvegarder l'information de la valeur de la meilleur carte
+     * amelioration : -la fonction devrait faire en sorte de sauvegarder l'information de la valeur de la meilleur carte
+     *                 - les list devrait stocket les valeur des carte et non les cartes !
      */
     public static int containtQuinte(Carte[] main) throws CloneNotSupportedException {
 
-        ArrayList<Carte> fifoMainTrier = new ArrayList<>();
+        ArrayList<Integer> fifoMainTrier = new ArrayList<>();
+        ArrayList<Integer> suite = new ArrayList<>();
         int nbCarte = main.length;
         int indexMinCarte;
         int nbCarteSuccessive;
@@ -98,10 +124,10 @@ public class Croupier_v1 implements Constante {
         for (int i = 0 ; i < nbCarte ; i++){
             indexMinCarte = indexMinCarte(copieMain);
             copieMain[indexMinCarte].setValeur(100);
-            fifoMainTrier.add(main[indexMinCarte]);
+            fifoMainTrier.add(main[indexMinCarte].getValeur());
             if (main[indexMinCarte].getValeur() == 14){
                 copieMain[indexMinCarte].setValeur(0);
-                fifoMainTrier.add(0,copieMain[indexMinCarte]);
+                fifoMainTrier.add(0,copieMain[indexMinCarte].getValeur());
                 copieMain[indexMinCarte].setValeur(100);
                 //un as est donc stocker 2 fois
                 //une fois en tant que 14
@@ -116,12 +142,14 @@ public class Croupier_v1 implements Constante {
         while (index < fifoMainTrier.size() && nbCarteRestante >= 5){
             indexSuivant = index+1;
             nbCarteSuccessive = 1;
-            while (fifoMainTrier.get(indexSuivant).getValeur() == fifoMainTrier.get(indexSuivant-1).getValeur() + 1 && nbCarteSuccessive < 5){
+            while (fifoMainTrier.get(indexSuivant) == fifoMainTrier.get(indexSuivant-1) + 1){
                 indexSuivant++;
                 nbCarteSuccessive++;
             }
-            if (nbCarteSuccessive == 5){
-                //amelioration ici
+            if (nbCarteSuccessive >= 5){
+                for (int i = 5 ; i >= 1; i--)
+                    suite.add(fifoMainTrier.get(indexSuivant-i));
+                quinteMem.add(suite);
                 return 8;
             }else {
                 index = indexSuivant;
@@ -157,6 +185,26 @@ public class Croupier_v1 implements Constante {
         }
 
         return new_tab;
+
+    }
+
+
+    /**
+     * @param main de 7 cartes
+     * @param suite de 5 int
+     * @return vrai si la main contient la suite
+     */
+    public static boolean containtAll(Carte[] main, ArrayList<Integer> suite){
+        boolean ok;
+        for (Integer integer : suite){
+            ok = false;
+            for (Carte carte : main)
+                if (carte.getValeur() == integer)
+                    ok = true;
+            if (!ok)
+                return false;
+        }
+        return true;
 
     }
 
