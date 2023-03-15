@@ -6,17 +6,35 @@ public class Test implements Constante {
         Carte[][] mainJoueur = new Carte[3][2];
         Carte[] flop = new Carte[5];
 
-        Carte carte = new Carte(5,PIQUE);
+       /* Carte carte = new Carte(5,PIQUE);
         Carte carte1 = new Carte(5,TREFLE);
 
         Carte carte2 = new Carte(12,COEUR);
-        Carte carte3 = new Carte(2,PIQUE);
+        Carte carte3 = new Carte(2,PIQUE);       // tes cartes test pour quinte et flush
 
         Carte carte4 = new Carte(4,CARREAU);
         Carte carte5 = new Carte(8,CARREAU);
 
+
+
         Carte flop0 = new Carte(12,TREFLE);
         Carte flop1 = new Carte(2,COEUR);
+        Carte flop2 = new Carte(5,CARREAU);
+        Carte flop3 = new Carte(6,CARREAU);
+        Carte flop4 = new Carte(7,CARREAU);
+*/
+        Carte carte = new Carte(3,PIQUE);
+        Carte carte1 = new Carte(5,TREFLE);
+
+        Carte carte2 = new Carte(12,CARREAU);
+        Carte carte3 = new Carte(12,PIQUE);       //  cartes test pour Multiples
+
+        Carte carte4 = new Carte(4,CARREAU);
+        Carte carte5 = new Carte(8,PIQUE);
+
+
+        Carte flop0 = new Carte(12,TREFLE);
+        Carte flop1 = new Carte(12,COEUR);
         Carte flop2 = new Carte(5,CARREAU);
         Carte flop3 = new Carte(6,CARREAU);
         Carte flop4 = new Carte(7,CARREAU);

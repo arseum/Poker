@@ -35,6 +35,7 @@ public class Croupier_v1 implements Constante {
             System.out.println("test containtFlush = " + containtFlush(main));
             System.out.println("test containtQuinte = " + containtQuinteDynamique(main));
             System.out.println("test containtQuinte = " + containtQuinteDynamique(main));
+            System.out.println("test containt Multiples = " + containMultiples(main));
         }
 
         System.out.println();
@@ -104,7 +105,7 @@ public class Croupier_v1 implements Constante {
      * @param main main de 7 cartes / 5 cartes (on comprendra alors que le joueur a une flush)
      * @return 0 si ne contient pas de quinte sinon renvoie 8
      * amelioration : -la fonction devrait faire en sorte de sauvegarder l'information de la valeur de la meilleur carte
-     *                 - les list devrait stocket les valeur des carte et non les cartes !
+     *                 - les list devraientt stocker les valeur des carte et non les cartes !
      */
     public static int containtQuinte(Carte[] main) throws CloneNotSupportedException {
 
@@ -157,7 +158,62 @@ public class Croupier_v1 implements Constante {
             }
         }
 
-        return 0;
+        return 0; //B :  c'est pas 2 si t'as rien ?
+    }
+
+    /**
+     * prototype voir si je peux gerer toutes les questions de pluricité de valeurs dans la meme methode/ Résolu normalement tout va bien
+     *
+     * @param main main de 7cartes
+     * @return 3 pour une paire/ 6 pour double paire / 7 pour un brelan / 11 pour le carré / voir 10 pour full
+     */
+    public static int containMultiples(Carte[] main){ // TODO gérer tous les cas ou ya 2 paires-un brelan/deux brelans etc, choisir le meilleur pr chaque cas
+
+         int nbDeRep;
+         boolean existeDansList;
+        ArrayList<Integer> vals =new ArrayList<>() ;
+        ArrayList<Integer> paires =new ArrayList<>() ;
+        ArrayList<Integer> brelans =new ArrayList<>() ;
+
+        for (Carte carte:main) {  // met toutes les valeurs distinctes de la main dans val
+            existeDansList=false;
+            for (int val:vals ) {
+                if (carte.getValeur() == val){
+                    existeDansList=true;
+                    break;
+                }
+            }
+            if (!existeDansList)
+                vals.add(carte.getValeur());
+        }
+
+        for (int val:vals) { // compte pour chaque valeur distincte le nombre de rep
+
+            nbDeRep =0;
+            for (Carte carte:main) {
+                if (carte.getValeur() == val){
+                    nbDeRep++;
+                }
+            }
+            switch (nbDeRep) { // entre les valeurs qui se repetent dans la liste correspondante, s'il y a un carré on le dit insyant car peut y avoir rien de plus interressant (a voir si ya 2 carrés)
+                case 2 -> paires.add(val);
+                case 3 -> brelans.add(val);
+                case 4 -> {return 11; }
+                default -> {}
+            }
+        }
+        if (brelans.size()==1 && paires.size()>0){  // en fonction des rep quil y a dans la main, renvoie le bon, "score"
+            return 10;
+        }else if (brelans.size()>0){
+            return 7;
+        }else if (paires.size() >1 ){
+            return 6;
+        }else if (paires.size()==1) {
+            return 3;
+        }else return 2;
+
+
+
     }
 
 
