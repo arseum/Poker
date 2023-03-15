@@ -1,4 +1,4 @@
-public class Carte implements Cloneable{
+public class Carte implements Cloneable,Constante{
     private int valeur;
     private String couleur;
 
@@ -31,7 +31,7 @@ public class Carte implements Cloneable{
             valeur = "valet de";
         else if (valeur.equals("   12   "))
             valeur = "reine de";
-        else if (valeur.equals("   1   "))
+        else if (valeur.equals("   14   "))
             valeur = "  as de ";
         else if (valeur.equals("   13   "))
             valeur = " roi de ";
@@ -40,9 +40,9 @@ public class Carte implements Cloneable{
 
         couleur = "   " + this.couleur + "  ";
 
-        if (this.couleur.equals("trefle")){
+        if (this.couleur.equals(TREFLE)){
             couleur = "  " + this.couleur + "  ";}
-        else if (this.couleur.equals("carreau")) {
+        else if (this.couleur.equals(CARREAU)) {
             couleur = "  " + this.couleur + " ";}
 
             return  "╔══════════╗\n" +

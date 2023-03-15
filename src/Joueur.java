@@ -147,7 +147,7 @@ public class Joueur implements Constante{
 
         System.out.println("\nvous avez " + jetonSurTable + " jetons deja mis sur la table");
         System.out.println("Total de jetons actuel : " + totalJeton + " jetons");
-        System.out.println("list des joueurs vivants = " + joueurEnVie + "\n");
+        System.out.println("file des tour de parole = " + joueurEnVie + "\n");
         System.out.println(pseudo + " que voulez-vous faire?");
         if (minimumMise != 0) {
             System.out.println("1. Se coucher");

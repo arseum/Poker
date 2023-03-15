@@ -28,7 +28,7 @@ public class Partie implements Constante {
         indexHautPaquet = -1;
     }
 
-    public void startPartie(){
+    public void startPartie() throws CloneNotSupportedException {
 
         String pseudo;
         int mancheNumero=1;
@@ -60,10 +60,9 @@ public class Partie implements Constante {
             manche();
             remiseEnEtat();
             System.out.println(timerGeneral);
-            mancheNumero++;
+            mancheNumero++; // sa sert a quoi ?
 
-            //mettre a jour les blinde ici si besoin
-            //B: faut pas mettre les blindes en arg de manche ?A: nan ce sont des attibuts / B: okay
+            //mettre a jour es blinde ici si besoin
         }
 
         timerGeneral.cancel();
@@ -88,7 +87,7 @@ public class Partie implements Constante {
         String[] couleurs = {COEUR, CARREAU, TREFLE, PIQUE};
         int cpt = 0;
 
-        for (int i = 1; i < 14; i++) {
+        for (int i = 2; i <= 14; i++) {
             for (int j = 0; j < 4; j++){
                 paquet[cpt] = new Carte(i,couleurs[j]);
                 cpt++;
@@ -124,7 +123,7 @@ public class Partie implements Constante {
     /**
      * methode qui permet le deroulement d'une manche
      */ //Grosse methode du prog
-    private void manche(){
+    private void manche() throws CloneNotSupportedException {
 
         //init
         pot = 0;
@@ -228,9 +227,12 @@ public class Partie implements Constante {
         }
 
         if (compteurTour == 4 && auMoin2JoueurPasCoucher()){
+            int nbJoueurFinal = fileJoueur.size();
+            Carte[][] mainJoueur = new Carte[nbJoueurFinal][2];
             System.out.println("il faut determiner le vainqueur entre :");
-            for (Joueur j : fileJoueur)
-                System.out.println(j.getPseudo());
+            for (int indexJ = 0 ; indexJ < nbJoueurFinal ; indexJ++)
+                mainJoueur[indexJ] = fileJoueur.get(indexJ).getMain();
+            Croupier_v1.determineGagnat_v1(riviere,mainJoueur);
         }else{
             System.out.println("c'est le joueur " + fileJoueur.get(0).getPseudo() + " qui a gagné cette manche !");
         }

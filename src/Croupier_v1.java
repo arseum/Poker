@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -8,17 +10,19 @@ import java.util.Objects;
 public class Croupier_v1 implements Constante {
 
     public static ArrayList<ArrayList<Integer>> quinteMem = new ArrayList<>();
+    public static HashMap<Carte[],Integer> Memcombi = new HashMap<>();
+    public static long tempsDebut;
+    public static long tempsFin;//System.out.println("temps = " + ((tempsFin - tempsDebut) / 1000)  );
 
-    /**
-     * premiere version pensée par arsene
-     * utilisation des paradigmes de diviser pour mieux regner, programmation dynamique, recursivité
-     */
     public static void determineGagnat_v1(Carte[] flop, Carte[][] mainJoueur) throws CloneNotSupportedException {
 
         int nbJoueur = mainJoueur.length;
         int[] valueMain = new int[nbJoueur];
+        int scoreMax = 0;
+        int score;
         Carte[][] mainFinal = new Carte[nbJoueur][5];
         Carte[][] maintemp = new Carte[nbJoueur][7];
+        ArrayList<Carte[]> mainGagnante = new ArrayList<>();
 
         //innit
         for (int i = 0 ; i < nbJoueur ; i++){
@@ -30,20 +34,52 @@ public class Croupier_v1 implements Constante {
 
         debug(maintemp);
 
-        for (Carte[] main : maintemp) {
-            debug(main);
-            System.out.println("test containtFlush = " + containtFlush(main));
-            System.out.println("test containtQuinte = " + containtQuinteDynamique(main));
-            System.out.println("test containtQuinte = " + containtQuinteDynamique(main));
-            System.out.println("test containt Multiples = " + containMultiples(main));
+        for (int i = 0 ; i < nbJoueur ; i++) {
+            score = determineValueMain(maintemp[i]);
+            valueMain[i] = score;
+            if(score > scoreMax) {
+                scoreMax = score;
+                mainGagnante.clear();
+                mainGagnante.add(maintemp[i]);
+            }else if(score == scoreMax)
+                mainGagnante.add(maintemp[i]);
         }
 
-        System.out.println();
-        System.out.println(quinteMem);
+        System.out.println("les main gangate sont : " );
+        debug(mainGagnante);
 
         //etape 1 : savoir la value de chaque main
 
 
+    }
+
+    /**
+     * utilise le principe de programmation dynamique
+     * il se trouve que c'est efficace mais pas forcement necessaire (le temp de calcul etant ridicule on peut s'en passer)
+     */
+    public static int determineValueMain(Carte[] main) throws CloneNotSupportedException {
+
+        if (Memcombi.containsKey(main)) {
+            System.out.println("youppi!");
+            return Memcombi.get(main);
+        }
+
+        int value;
+
+        value = containtFlush(main);
+        value += containtQuinte(main);
+
+        if (value != 0)
+            return value;
+
+        value = containMultiples(main);
+
+        if (value != 0)
+            return value;
+
+        //pas de combinaison il faut donc garder les 5 meilleur carte et les trier
+
+        return 2;
     }
 
     /**
@@ -69,7 +105,7 @@ public class Croupier_v1 implements Constante {
                         nbCarteMemeCouleur++;
                 }
                 if (nbCarteMemeCouleur == 5) {
-                    //amelioration ici
+                    Memcombi.put(main,9);
                     return 9;
                 }else{
                     carteRestante -= nbCarteMemeCouleur;
@@ -83,6 +119,10 @@ public class Croupier_v1 implements Constante {
 
     }
 
+    /**
+     * version dynamique de la detection de quinte
+     * il se trouve qu'elle est moins efficace que la classique...
+     */
     public static int containtQuinteDynamique(Carte[] main) throws CloneNotSupportedException {
 
         boolean estUneQuinte = false;
@@ -148,9 +188,16 @@ public class Croupier_v1 implements Constante {
                 nbCarteSuccessive++;
             }
             if (nbCarteSuccessive >= 5){
+
                 for (int i = 5 ; i >= 1; i--)
                     suite.add(fifoMainTrier.get(indexSuivant-i));
                 quinteMem.add(suite);
+
+                if (Memcombi.containsKey(main))
+                    Memcombi.replace(main,Memcombi.get(main)+8);
+                else
+                    Memcombi.put(main,8);
+
                 return 8;
             }else {
                 index = indexSuivant;
@@ -158,7 +205,7 @@ public class Croupier_v1 implements Constante {
             }
         }
 
-        return 0; //B :  c'est pas 2 si t'as rien ?
+        return 0;
     }
 
     /**
@@ -171,9 +218,9 @@ public class Croupier_v1 implements Constante {
 
          int nbDeRep;
          boolean existeDansList;
-        ArrayList<Integer> vals =new ArrayList<>() ;
-        ArrayList<Integer> paires =new ArrayList<>() ;
-        ArrayList<Integer> brelans =new ArrayList<>() ;
+         ArrayList<Integer> vals =new ArrayList<>() ;
+         ArrayList<Integer> paires =new ArrayList<>() ;
+         ArrayList<Integer> brelans =new ArrayList<>() ;
 
         for (Carte carte:main) {  // met toutes les valeurs distinctes de la main dans val
             existeDansList=false;
@@ -198,22 +245,26 @@ public class Croupier_v1 implements Constante {
             switch (nbDeRep) { // entre les valeurs qui se repetent dans la liste correspondante, s'il y a un carré on le dit insyant car peut y avoir rien de plus interressant (a voir si ya 2 carrés)
                 case 2 -> paires.add(val);
                 case 3 -> brelans.add(val);
-                case 4 -> {return 11; }
+                case 4 -> {
+                    Memcombi.put(main,11);
+                    return 11; }
                 default -> {}
             }
         }
         if (brelans.size()==1 && paires.size()>0){  // en fonction des rep quil y a dans la main, renvoie le bon, "score"
+            Memcombi.put(main,10);
             return 10;
         }else if (brelans.size()>0){
+            Memcombi.put(main,7);
             return 7;
         }else if (paires.size() >1 ){
+            Memcombi.put(main,6);
             return 6;
         }else if (paires.size()==1) {
+            Memcombi.put(main,3);
             return 3;
-        }else return 2;
-
-
-
+        }else return 0; //0 pour non determiner, c plus simple pour l'algo
+        //plus simple avec un dictionnaire je pense
     }
 
 
@@ -268,6 +319,15 @@ public class Croupier_v1 implements Constante {
         for (int i = 0 ; i < mainJoueur.length ; i++){
             System.out.print("main j°" + (i+1) + " : ");
             debug(mainJoueur[i]);
+        }
+        System.out.println();
+
+    }
+
+    public static void debug(ArrayList<Carte[]> mains){
+        for (int i = 0 ; i < mains.size() ; i++){
+            System.out.print("main j°" + (i+1) + " : ");
+            debug(mains.get(i));
         }
         System.out.println();
 
