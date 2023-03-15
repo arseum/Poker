@@ -237,8 +237,8 @@ public class Partie implements Constante {
             System.out.println("c'est le joueur " + fileJoueur.get(0).getPseudo() + " qui a gagné cette manche !");
         }
 
-        System.out.println("\nPartie test!\nAucun gain desolé la banque garde tout ^^ ");
-        System.out.println("\nVEullez patienter 10s le temps que l'ordi melange les cartes");
+        System.out.println("\nPartie test!\nAucun gain, desolé la banque garde tout ^^ ");
+        System.out.println("\nVeuillez patienter 10s le temps que l'ordi melange les cartes");
 
         int millis = 5000;
 

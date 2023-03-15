@@ -214,7 +214,7 @@ public class Croupier_v1 implements Constante {
      * @param main main de 7cartes
      * @return 3 pour une paire/ 6 pour double paire / 7 pour un brelan / 11 pour le carré / voir 10 pour full
      */
-    public static int containMultiples(Carte[] main){ // TODO gérer tous les cas ou ya 2 paires-un brelan/deux brelans etc, choisir le meilleur pr chaque cas
+    public static int containMultiples(Carte[] main){
 
          int nbDeRep;
          boolean existeDansList;

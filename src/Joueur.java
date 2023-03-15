@@ -207,7 +207,7 @@ public class Joueur implements Constante{
         choix = in.nextInt();
 
         while (choix < min || choix > max){
-            System.out.print("Réesseyer : ");
+            System.out.print("Réessayez : ");
             choix = in.nextInt();
         }
 
@@ -249,7 +249,7 @@ public class Joueur implements Constante{
         System.out.println(" ----------------------------------------------------------- \n\n\n");
 
         do {
-            System.out.println("tapper ok lorsque vous etes prêt.");
+            System.out.println("tappez ok lorsque vous etes prêt.");
             saisie = in.next();
         }while (!Objects.equals(saisie, "ok"));
 
