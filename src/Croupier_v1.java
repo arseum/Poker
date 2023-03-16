@@ -177,7 +177,8 @@ public class Croupier_v1 implements Constante {
         for (int i = 0 ; i < nbCarte ; i++){
             indexMinCarte = indexMinCarte(copieMain);
             copieMain[indexMinCarte].setValeur(100);
-            fifoMainTrier.add(main[indexMinCarte].getValeur());
+            if (!fifoMainTrier.contains(main[indexMinCarte].getValeur()))
+                fifoMainTrier.add(main[indexMinCarte].getValeur());
             if (main[indexMinCarte].getValeur() == 14){
                 copieMain[indexMinCarte].setValeur(0);
                 fifoMainTrier.add(0,copieMain[indexMinCarte].getValeur());
