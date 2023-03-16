@@ -17,9 +17,10 @@ public class Croupier_v1 implements Constante {
     public static void determineGagnat_v1(Carte[] flop, Carte[][] mainJoueur) throws CloneNotSupportedException {
 
         int nbJoueur = mainJoueur.length;
-        int[] valueMain = new int[nbJoueur];
         int scoreMax = 0;
         int score;
+        int valeurMax;
+        int index;
         Carte[][] mainFinal = new Carte[nbJoueur][5];
         Carte[][] maintemp = new Carte[nbJoueur][7];
         ArrayList<Carte[]> mainGagnante = new ArrayList<>();
@@ -36,7 +37,6 @@ public class Croupier_v1 implements Constante {
 
         for (int i = 0 ; i < nbJoueur ; i++) {
             score = determineValueMain(maintemp[i]);
-            valueMain[i] = score;
             if(score > scoreMax) {
                 scoreMax = score;
                 mainGagnante.clear();
@@ -45,10 +45,27 @@ public class Croupier_v1 implements Constante {
                 mainGagnante.add(maintemp[i]);
         }
 
-        System.out.println("les main gangate sont : " );
+        if (mainGagnante.size() != 1) {
+            if (scoreMax == 8 || scoreMax == 9 || scoreMax == 17){
+                valeurMax = mainGagnante.get(0)[0].getValeur();
+                index = 0;
+                for(int i = 1 ; i < mainGagnante.size() ; i++){
+                    if (mainGagnante.get(i)[0].getValeur() > valeurMax) {
+                        valeurMax = mainGagnante.get(i)[0].getValeur();
+                        mainGagnante.remove(index);
+                        index = i;
+                    }else if(mainGagnante.get(i)[0].getValeur() < valeurMax)
+                        mainGagnante.remove(i);
+                }
+            }
+            //manque les autre situtation ici
+        }
+        debug(maintemp);
+
+        System.out.println("les main gagnante sont : " );
         debug(mainGagnante);
 
-        //etape 1 : savoir la value de chaque main
+
 
 
     }
@@ -85,7 +102,7 @@ public class Croupier_v1 implements Constante {
     /**
      * @param main main de 7 cartes
      * @return 0 si ne contient pas de flush sinon renvoie 9
-     * amelioration : la fonction devrait mettre la flush dans les 5er case de main
+     * si la main contient une flush, la fonction met la carte la plus haute a l'index 0 et met la couleur dans le debut de la main
      */
     public static int containtFlush(Carte[] main){
 
@@ -93,6 +110,7 @@ public class Croupier_v1 implements Constante {
         int nbCarteMemeCouleur;
         int carteRestante = 7;
         int index = 0;
+        int indexCarteMax = 0;
         String couleurRechercher;
 
         //si la boucle est bien gerer on ne devrait pas a avoir a gerer les index out of range
@@ -104,7 +122,23 @@ public class Croupier_v1 implements Constante {
                     if (Objects.equals(carte.getCouleur(), couleurRechercher))
                         nbCarteMemeCouleur++;
                 }
-                if (nbCarteMemeCouleur == 5) {
+                if (nbCarteMemeCouleur >= 5) {
+
+                    index = 0;
+                    for (int i = 0 ; i < main.length ; i++){
+                        if (Objects.equals(main[i].getCouleur(), couleurRechercher)){
+                            if (i != index)
+                                swapCarteIndex(main, index, i);
+                            index++;
+                        }
+                    }
+                    index = 1;
+                    while (Objects.equals(main[index].getCouleur(), couleurRechercher)){
+                        if (main[indexCarteMax].getValeur() < main[index].getValeur())
+                            indexCarteMax = index;
+                        index++;
+                    }
+                    swapCarteIndex(main,indexCarteMax,0);
                     Memcombi.put(main,9);
                     return 9;
                 }else{
@@ -120,43 +154,21 @@ public class Croupier_v1 implements Constante {
     }
 
     /**
-     * version dynamique de la detection de quinte
-     * il se trouve qu'elle est moins efficace que la classique...
-     */
-    public static int containtQuinteDynamique(Carte[] main) throws CloneNotSupportedException {
-
-        boolean estUneQuinte = false;
-        int index = 0;
-
-        while (!estUneQuinte && index < quinteMem.size()){
-            if (containtAll(main,quinteMem.get(0))) {
-                System.out.println("youpi!");
-                return 8;
-            }
-            else
-                index++;
-        }
-
-        return containtQuinte(main);
-
-    }
-
-    /**
      * @param main main de 7 cartes / 5 cartes (on comprendra alors que le joueur a une flush)
      * @return 0 si ne contient pas de quinte sinon renvoie 8
-     * amelioration : -la fonction devrait faire en sorte de sauvegarder l'information de la valeur de la meilleur carte
-     *                 - les list devraientt stocker les valeur des carte et non les cartes !
+     * la fonction met la carte la plus haute a l'index 0
+     * attention: elle ne met pas la suite dans les 5er case de main car c'est inutile
      */
     public static int containtQuinte(Carte[] main) throws CloneNotSupportedException {
 
         ArrayList<Integer> fifoMainTrier = new ArrayList<>();
-        ArrayList<Integer> suite = new ArrayList<>();
         int nbCarte = main.length;
         int indexMinCarte;
         int nbCarteSuccessive;
         int nbCarteRestante;
         int index;
         int indexSuivant;
+        int valMax;
         Carte[] copieMain; //il faut faire attention a ne pas modifier la main du joueur
 
         copieMain = cloneTabDeCarte(main);
@@ -189,15 +201,16 @@ public class Croupier_v1 implements Constante {
             }
             if (nbCarteSuccessive >= 5){
 
-                for (int i = 5 ; i >= 1; i--)
-                    suite.add(fifoMainTrier.get(indexSuivant-i));
-                quinteMem.add(suite);
-
                 if (Memcombi.containsKey(main))
                     Memcombi.replace(main,Memcombi.get(main)+8);
                 else
                     Memcombi.put(main,8);
 
+                valMax = fifoMainTrier.get(indexSuivant-1);
+                index = 0;
+                while (main[index].getValeur() != valMax)
+                    index++;
+                swapCarteIndex(main,0,index);
                 return 8;
             }else {
                 index = indexSuivant;
@@ -217,20 +230,12 @@ public class Croupier_v1 implements Constante {
     public static int containMultiples(Carte[] main){
 
          int nbDeRep;
-         boolean existeDansList;
          ArrayList<Integer> vals =new ArrayList<>() ;
          ArrayList<Integer> paires =new ArrayList<>() ;
          ArrayList<Integer> brelans =new ArrayList<>() ;
 
         for (Carte carte:main) {  // met toutes les valeurs distinctes de la main dans val
-            existeDansList=false;
-            for (int val:vals ) {
-                if (carte.getValeur() == val){
-                    existeDansList=true;
-                    break;
-                }
-            }
-            if (!existeDansList)
+            if (!vals.contains(carte.getValeur()))
                 vals.add(carte.getValeur());
         }
 
@@ -315,7 +320,16 @@ public class Croupier_v1 implements Constante {
 
     }
 
+    public static void swapCarteIndex(Carte[] main, int index1, int index2 ){
+        Carte pivot;
+        pivot = main[index1];
+        main[index1] = main[index2];
+        main[index2] = pivot;
+    }
+
+
     public static void debug(Carte[][] mainJoueur){
+        System.out.println();
         for (int i = 0 ; i < mainJoueur.length ; i++){
             System.out.print("main j°" + (i+1) + " : ");
             debug(mainJoueur[i]);
@@ -325,6 +339,7 @@ public class Croupier_v1 implements Constante {
     }
 
     public static void debug(ArrayList<Carte[]> mains){
+        System.out.println();
         for (int i = 0 ; i < mains.size() ; i++){
             System.out.print("main j°" + (i+1) + " : ");
             debug(mains.get(i));
