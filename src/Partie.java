@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Timer;
 
 
@@ -9,10 +10,11 @@ public class Partie implements Constante {
     private int grosseBlindeActuelle; //la groose blinde est toujours egale a 2X la petite blinde
     private int compteurTour;
     private int pot;
-    private int minimumMise;
+    private final int minimumMise;
     private int indexHautPaquet; // index de la prochaine carte a distribuer/retourner/cramer
+    private int type_partie;
     private Carte[] paquet;
-    private Joueur[] joueurs;
+    private final Joueur[] joueurs;
     private Carte[] riviere;
 
 
@@ -26,20 +28,23 @@ public class Partie implements Constante {
         compteurTour = -1;
         pot = -1;
         indexHautPaquet = -1;
+        type_partie = PARTIE_CLASSIQUE;
     }
 
     public void startPartie() throws CloneNotSupportedException {
 
         String pseudo;
-        int mancheNumero=1;
+        int mancheNumero = 1;
         Timer timerGeneral;
 
 
         //init des joueurs
-        for (int i = 0 ; i < joueurs.length ; i++) {
-            System.out.println("joueur n°"+ (i+1) + " entrez votre pseudo :");
+        for (int i = 0; i < joueurs.length; i++) {
+            System.out.println("joueur n°" + (i + 1) + " entrez votre pseudo :");
             pseudo = in.next();
-            joueurs[i] = new Joueur(pseudo,jetonPourPartieNormal);
+            if (Objects.equals(pseudo, "botzizikrakzi"))
+                this.type_partie = PARTI_SPECIALE;
+            joueurs[i] = new Joueur(pseudo, jetonPourPartieNormal);
             System.out.println("joueur " + pseudo + " a bien été créé avec un total de " + jetonPourPartieNormal + " jetons! gl hf");
         }
 
@@ -48,7 +53,7 @@ public class Partie implements Constante {
         grosseBlindeActuelle = 10;
         tireAuSortBlinde();
 
-        timerGeneral= new Timer("timerGeneral");
+        timerGeneral = new Timer("timerGeneral");
 
         //timerGeneral.scheduleAtFixedRate(,600000 ,600000 );
         //jpensait que ct bien pr faire une tache tt les x temps mais peux pas executer de methodes avec
@@ -56,7 +61,7 @@ public class Partie implements Constante {
 
 
         //boucle de jeu
-        while (!aUnGagnant()){
+        while (!aUnGagnant()) {
             manche();
             remiseEnEtat();
             System.out.println(timerGeneral);
@@ -69,13 +74,15 @@ public class Partie implements Constante {
     }
 
 
-    public Carte[] getPaquet() {return paquet;}
+    public Carte[] getPaquet() {
+        return paquet;
+    }
 
     public Joueur[] getJoueurs() {
         return joueurs;
     }
 
-    private boolean auMoin2JoueurPasCoucher(){
+    private boolean auMoin2JoueurPasCoucher() {
         int nbJoueurPasCoucher = 0;
         for (Joueur j : joueurs)
             if (!j.isEstCouche())
@@ -83,13 +90,13 @@ public class Partie implements Constante {
         return nbJoueurPasCoucher >= 2;
     }
 
-    public void creerPaquet(){
+    public void creerPaquet() {
         String[] couleurs = {COEUR, CARREAU, TREFLE, PIQUE};
         int cpt = 0;
 
         for (int i = 2; i <= 14; i++) {
-            for (int j = 0; j < 4; j++){
-                paquet[cpt] = new Carte(i,couleurs[j]);
+            for (int j = 0; j < 4; j++) {
+                paquet[cpt] = new Carte(i, couleurs[j]);
                 cpt++;
             }
         }
@@ -97,9 +104,10 @@ public class Partie implements Constante {
 
     /**
      * fonction qui parcours la liste de joueur et verifie si il y a un gagnant dans la partie
+     *
      * @return true si il n'y a que un joueur en vie
      */
-    private boolean aUnGagnant(){
+    private boolean aUnGagnant() {
         int nbdeTrue = 0;
         for (Joueur joueur : joueurs)
             if (joueur.isEstVivant())
@@ -111,13 +119,13 @@ public class Partie implements Constante {
     /**
      * methode qui permet de tirer au sort la petite blinde pour le debut de la partie
      */
-    private void tireAuSortBlinde(){
+    private void tireAuSortBlinde() {
         int nbJoueur = joueurs.length;
         int indexRandom = (int) (Math.random() * nbJoueur);
         joueurs[indexRandom].setBlinde(1);
-        if (indexRandom  == joueurs.length - 1)
+        if (indexRandom == joueurs.length - 1)
             indexRandom = -1;
-        joueurs[indexRandom+1].setBlinde(2);
+        joueurs[indexRandom + 1].setBlinde(2);
     }
 
     /**
@@ -140,17 +148,17 @@ public class Partie implements Constante {
         int i = 0;
         boolean krakzi = false;
 
-        while (fileJoueur.size() != joueurs.length){
+        while (fileJoueur.size() != joueurs.length) {
             if (krakzi && joueurs[i].isEstVivant()) {
                 joueurs[i].poseBlinde(petiteBlindeActuelle);
                 fileJoueur.add(joueurs[i]);
             }
 
-            if (joueurs[i].getBlinde() == 2){
+            if (joueurs[i].getBlinde() == 2) {
                 krakzi = true;
             }
 
-            i = (i+1) % joueurs.length;
+            i = (i + 1) % joueurs.length;
         }
         //a partir d'ici il faut veiller a ce que le joueur a qui c'est le tour de parler est a la tête de la FIFO
 
@@ -165,20 +173,22 @@ public class Partie implements Constante {
             while (nbSuiviRequis != 0) {
 
                 //le joueur en tête de file parle
-                relance = fileJoueur.get(0).parle(miseMinimalPourSuivre,riviere,grosseBlindeActuelle,fileJoueur);
+                if (this.type_partie != PARTI_SPECIALE)
+                    relance = fileJoueur.get(0).parle(miseMinimalPourSuivre, riviere, grosseBlindeActuelle, fileJoueur);
+                else
+                    relance = false;
 
                 //maj de nbSuiviRequis en fonction de si le joueur a relancer ou pas
                 if (relance) {
                     nbSuiviRequis = fileJoueur.size() - 1;
                     miseMinimalPourSuivre = fileJoueur.get(0).getJetonSurTable();
-                }
-                else
+                } else
                     nbSuiviRequis--;
 
                 //maj de la fifo en fonction de si le joueur c'est coucher ou non
                 if (fileJoueur.get(0).isEstCouche())
                     fileJoueur.remove(0);
-                else{
+                else {
                     fileJoueur.add(fileJoueur.get(0));
                     fileJoueur.remove(0);
                 }
@@ -194,10 +204,10 @@ public class Partie implements Constante {
             //retourner 3 ou 1 carte
             piocheHautDuPaquet();
             if (compteurTour == 0) //3 cartes
-                for (int index = 0 ; index < 3 ; index++)
+                for (int index = 0; index < 3; index++)
                     riviere[index] = piocheHautDuPaquet();
             else if (compteurTour < 3) // 1 cartes
-                riviere[compteurTour+2] = piocheHautDuPaquet();
+                riviere[compteurTour + 2] = piocheHautDuPaquet();
 
 
             //remettre en ordre la fifo en fonction de la petite blinde
@@ -205,9 +215,9 @@ public class Partie implements Constante {
             fileJoueur.clear();
             krakzi = false;
             i = 0;
-            while (fileJoueur.size() != nbJoeurEncoreEnVie){
+            while (fileJoueur.size() != nbJoeurEncoreEnVie) {
 
-                if (joueurs[i].getBlinde() == 1){
+                if (joueurs[i].getBlinde() == 1) {
                     krakzi = true;
                 }
 
@@ -215,21 +225,21 @@ public class Partie implements Constante {
                     fileJoueur.add(joueurs[i]);
                 }
 
-                i = (i+1) % joueurs.length;
+                i = (i + 1) % joueurs.length;
             }
 
             miseMinimalPourSuivre = 0;
             compteurTour++;
         }
 
-        if (compteurTour == 4 && auMoin2JoueurPasCoucher()){
+        if (compteurTour == 4 && auMoin2JoueurPasCoucher()) {
             int nbJoueurFinal = fileJoueur.size();
             Carte[][] mainJoueur = new Carte[nbJoueurFinal][2];
             System.out.println("il faut determiner le vainqueur entre :");
-            for (int indexJ = 0 ; indexJ < nbJoueurFinal ; indexJ++)
+            for (int indexJ = 0; indexJ < nbJoueurFinal; indexJ++)
                 mainJoueur[indexJ] = fileJoueur.get(indexJ).getMain();
-            Croupier_v1.determineGagnat_v1(riviere,mainJoueur);
-        }else{
+            Croupier_v1.determineGagnat_v1(riviere, mainJoueur);
+        } else {
             System.out.println("c'est le joueur " + fileJoueur.get(0).getPseudo() + " qui a gagné cette manche !");
         }
 
@@ -252,24 +262,30 @@ public class Partie implements Constante {
             // ...
         }
 
+        String saisie;
+        do {
+            System.out.println("tappez ok lorsque vous etes prêt.");
+            saisie = in.next();
+        } while (!Objects.equals(saisie, "ok"));
+
     }
 
-    private int rammasserJetonSurLaTable(){
+    private int rammasserJetonSurLaTable() {
         int total = 0;
         for (Joueur j : joueurs)
             total += j.donneJetonPoser();
         return total;
     }
 
-    public void melangerCarte(){
+    public void melangerCarte() {
 
         Carte[] newPaquet = new Carte[52];
         int placer = 0;
         int index;
 
-        while (placer < 52){
+        while (placer < 52) {
             index = (int) (Math.random() * 52);
-            if (newPaquet[index] == null){
+            if (newPaquet[index] == null) {
                 newPaquet[index] = paquet[placer];
                 placer++;
             }
@@ -279,16 +295,16 @@ public class Partie implements Constante {
 
     }
 
-    private Carte piocheHautDuPaquet(){
+    private Carte piocheHautDuPaquet() {
         Carte carte = paquet[indexHautPaquet];
         paquet[indexHautPaquet] = null;
         indexHautPaquet--;
         return carte;
     }
 
-    public void distribuerCarte(){
+    public void distribuerCarte() {
 
-        for (int t = 1 ; t <= 2 ; t++){
+        for (int t = 1; t <= 2; t++) {
             for (Joueur j : joueurs) {
                 j.recoitCarte(piocheHautDuPaquet());
             }
@@ -300,7 +316,7 @@ public class Partie implements Constante {
      * methode qui permet de mettre a jour les booleans encore en vie et est coucher des joueurs
      * elle gére tout l'entre 2 manche
      */
-    private void remiseEnEtat(){
+    private void remiseEnEtat() {
         for (Joueur j : joueurs) {
             if (j.getTotalJeton() == 0)
                 j.setEstVivant(false);
@@ -311,7 +327,7 @@ public class Partie implements Constante {
         riviere = new Carte[5];
     }
 
-    public void doublerBlindes(){
+    public void doublerBlindes() {
         petiteBlindeActuelle += petiteBlindeActuelle;
         grosseBlindeActuelle += grosseBlindeActuelle;
     }

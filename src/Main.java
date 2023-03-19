@@ -10,7 +10,7 @@ public class Main {
         do {
             System.out.print("Entrez le nombre de joueur : ");
             nombreJ = in.nextInt();
-        }while (nombreJ < 2 || nombreJ > 6);
+        } while (nombreJ < 2 || nombreJ > 6);
 
         partie = new Partie(nombreJ);
         partie.startPartie();

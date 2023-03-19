@@ -1,5 +1,3 @@
-import java.util.HashMap;
-
 public class Test implements Constante {
 
     public static void main(String[] args) throws CloneNotSupportedException {
@@ -7,22 +5,21 @@ public class Test implements Constante {
         Carte[][] mainJoueur = new Carte[3][2];
         Carte[] flop = new Carte[5];
 
-        Carte carte = new Carte(5,PIQUE);
-        Carte carte1 = new Carte(5,TREFLE);
+        Carte carte = new Carte(5, PIQUE);
+        Carte carte1 = new Carte(5, TREFLE);
 
-        Carte carte2 = new Carte(4,CARREAU);
-        Carte carte3 = new Carte(8,COEUR);
+        Carte carte2 = new Carte(4, CARREAU);
+        Carte carte3 = new Carte(8, CARREAU);
 
-        Carte carte4 = new Carte(3,CARREAU);
-        Carte carte5 = new Carte(4,CARREAU);
+        Carte carte4 = new Carte(3, CARREAU);
+        Carte carte5 = new Carte(4, CARREAU);
 
 
-
-        Carte flop0 = new Carte(12,TREFLE);
-        Carte flop1 = new Carte(2,TREFLE);
-        Carte flop2 = new Carte(5,CARREAU);
-        Carte flop3 = new Carte(6,CARREAU);
-        Carte flop4 = new Carte(7,CARREAU);
+        Carte flop0 = new Carte(12, TREFLE);
+        Carte flop1 = new Carte(2, TREFLE);
+        Carte flop2 = new Carte(5, CARREAU);
+        Carte flop3 = new Carte(6, CARREAU);
+        Carte flop4 = new Carte(7, CARREAU);
 /*
         Carte carte = new Carte(3,PIQUE);
         Carte carte1 = new Carte(5,TREFLE);
@@ -56,8 +53,7 @@ public class Test implements Constante {
         flop[4] = flop4;
 
 
-        Croupier_v1.determineGagnat_v1(flop,mainJoueur);
-
+        Croupier_v1.determineGagnat_v1(flop, mainJoueur);
 
     }
 
