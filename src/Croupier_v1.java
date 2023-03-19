@@ -218,7 +218,7 @@ public class Croupier_v1 implements Constante {
         while (index < fifoMainTrier.size() && nbCarteRestante >= 5) {
             indexSuivant = index + 1;
             nbCarteSuccessive = 1;
-            while (fifoMainTrier.get(indexSuivant) == fifoMainTrier.get(indexSuivant - 1) + 1) {
+            while (indexSuivant < fifoMainTrier.size() && fifoMainTrier.get(indexSuivant) == fifoMainTrier.get(indexSuivant - 1) + 1) {
                 indexSuivant++;
                 nbCarteSuccessive++;
             }
@@ -327,7 +327,12 @@ public class Croupier_v1 implements Constante {
             remonteCarteIndex(main, 4, variable);
             Memcombi.put(main, PAIRE);
             return PAIRE;
-        } else return NON_DETERMINER; //0 pour non determiner, c plus simple pour l'algo
+        } else {
+            for (int i = 0 ; i < 5 ; i ++){
+                variable = max(main,i);
+                remonteCarteIndex(main,i,variable);
+            }
+            return NON_DETERMINER;} //0 pour non determiner, c plus simple pour l'algo
     }
 
 
