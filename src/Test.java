@@ -1,3 +1,4 @@
+import java.util.HashMap;
 
 public class Test implements Constante {
 
@@ -12,7 +13,7 @@ public class Test implements Constante {
         Carte carte2 = new Carte(4,CARREAU);
         Carte carte3 = new Carte(8,COEUR);
 
-        Carte carte4 = new Carte(3,PIQUE);
+        Carte carte4 = new Carte(3,CARREAU);
         Carte carte5 = new Carte(4,CARREAU);
 
 
@@ -56,6 +57,7 @@ public class Test implements Constante {
 
 
         Croupier_v1.determineGagnat_v1(flop,mainJoueur);
+
 
     }
 

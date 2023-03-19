@@ -1,11 +1,25 @@
 public class Carte implements Cloneable,Constante{
     private int valeur;
     private String couleur;
+    private int valeur_couleur;
 
-    public Carte(int valeur, String couleur){ this.couleur = couleur;  this.valeur = valeur; }
+    public Carte(int valeur, String couleur){
+        this.couleur = couleur;
+        this.valeur = valeur;
+        switch (couleur){
+            case TREFLE -> valeur_couleur = TREFLE_V;
+            case CARREAU -> valeur_couleur = CARREAU_V;
+            case COEUR -> valeur_couleur = COEUR_V;
+            case PIQUE -> valeur_couleur = PIQUE_V;
+        }
+    }
 
     public int getValeur() {
         return valeur;
+    }
+
+    public int getValeur_couleur() {
+        return valeur_couleur;
     }
 
     public String getCouleur() {

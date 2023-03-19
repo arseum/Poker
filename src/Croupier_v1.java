@@ -21,7 +21,7 @@ public class Croupier_v1 implements Constante {
         int score;
         int valeurMax;
         int index;
-        Carte[][] mainFinal = new Carte[nbJoueur][5];
+        int max;
         Carte[][] maintemp = new Carte[nbJoueur][7];
         ArrayList<Carte[]> mainGagnante = new ArrayList<>();
 
@@ -46,20 +46,23 @@ public class Croupier_v1 implements Constante {
         }
 
         if (mainGagnante.size() != 1) {
-            if (scoreMax == 8 || scoreMax == 9 || scoreMax == 17){
-                valeurMax = mainGagnante.get(0)[0].getValeur();
+            if (scoreMax == QUINTE || scoreMax == FLUSH || scoreMax == (QUINTE+FLUSH) ) {
+                max = max(mainGagnante,0);
+                for (Carte[] m :mainGagnante)
+                    if (m[0].getValeur() != max )
+                        mainGagnante.remove(m);
+            }else{
                 index = 0;
-                for(int i = 1 ; i < mainGagnante.size() ; i++){
-                    if (mainGagnante.get(i)[0].getValeur() > valeurMax) {
-                        valeurMax = mainGagnante.get(i)[0].getValeur();
-                        mainGagnante.remove(index);
-                        index = i;
-                    }else if(mainGagnante.get(i)[0].getValeur() < valeurMax)
-                        mainGagnante.remove(i);
+                while (index != 5){
+                    max = max(mainGagnante,index);
+                    for (Carte[] m :mainGagnante)
+                        if (m[index].getValeur() != max )
+                            mainGagnante.remove(m);
+                    index++;
                 }
             }
-            //manque les autre situtation ici
         }
+
         debug(maintemp);
 
         System.out.println("les main gagnante sont : " );
@@ -83,25 +86,23 @@ public class Croupier_v1 implements Constante {
 
         int value;
 
-        value = containtFlush(main);
+        value = containtFlush_v2(main);
         value += containtQuinte(main);
 
-        if (value != 0)
+        if (value != NON_DETERMINER)
             return value;
 
         value = containMultiples(main);
 
-        if (value != 0)
+        if (value != NON_DETERMINER)
             return value;
 
         //pas de combinaison il faut donc garder les 5 meilleur carte et les trier
 
-        return 2;
+        return NADA;
     }
 
     /**
-     * @param main main de 7 cartes
-     * @return 0 si ne contient pas de flush sinon renvoie 9
      * si la main contient une flush, la fonction met la carte la plus haute a l'index 0 et met la couleur dans le debut de la main
      */
     public static int containtFlush(Carte[] main){
@@ -139,8 +140,8 @@ public class Croupier_v1 implements Constante {
                         index++;
                     }
                     swapCarteIndex(main,indexCarteMax,0);
-                    Memcombi.put(main,9);
-                    return 9;
+                    Memcombi.put(main,FLUSH);
+                    return FLUSH;
                 }else{
                     carteRestante -= nbCarteMemeCouleur;
                     blackList.add(main[index].getCouleur());
@@ -149,8 +150,32 @@ public class Croupier_v1 implements Constante {
             index++;
         }
 
-        return 0;
+        return NON_DETERMINER;
 
+    }
+
+    public static int containtFlush_v2(Carte[] main){
+
+        int[] index = new int[5];
+        int j;
+        int non1,non2;
+
+        for (non2 = main.length-1 ; non2 > 0 ; non2--){
+            for (non1 = 0 ; non1 < non2 ; non1++){
+                j=0;
+                for (int i = 0 ; i < main.length ; i++){
+                    if (i != non2 && i != non1) {
+                        index[j] = i;
+                        j++;
+                    }
+                }
+                if (main[index[0]].getValeur_couleur() == (main[index[1]].getValeur_couleur() | main[index[2]].getValeur_couleur() | main[index[3]].getValeur_couleur() | main[index[4]].getValeur_couleur() )) {
+                    System.out.println("youpi!");
+                    return FLUSH;
+                }
+            }
+        }
+        return NON_DETERMINER;
     }
 
     /**
@@ -203,37 +228,37 @@ public class Croupier_v1 implements Constante {
             if (nbCarteSuccessive >= 5){
 
                 if (Memcombi.containsKey(main))
-                    Memcombi.replace(main,Memcombi.get(main)+8);
+                    Memcombi.put(main, QUINTE+FLUSH );
                 else
-                    Memcombi.put(main,8);
+                    Memcombi.put(main,QUINTE);
 
                 valMax = fifoMainTrier.get(indexSuivant-1);
                 index = 0;
                 while (main[index].getValeur() != valMax)
                     index++;
                 swapCarteIndex(main,0,index);
-                return 8;
+                return QUINTE;
             }else {
                 index = indexSuivant;
                 nbCarteRestante -= nbCarteSuccessive;
             }
         }
 
-        return 0;
+        return NON_DETERMINER;
     }
 
     /**
      * prototype voir si je peux gerer toutes les questions de pluricité de valeurs dans la meme methode/ Résolu normalement tout va bien
      *
      * @param main main de 7cartes
-     * @return 3 pour une paire/ 6 pour double paire / 7 pour un brelan / 11 pour le carré / voir 10 pour full
      */
     public static int containMultiples(Carte[] main){
 
-         int nbDeRep;
-         ArrayList<Integer> vals =new ArrayList<>() ;
-         ArrayList<Integer> paires =new ArrayList<>() ;
-         ArrayList<Integer> brelans =new ArrayList<>() ;
+        int variable;
+        int nbDeRep;
+        ArrayList<Integer> vals =new ArrayList<>() ;
+        ArrayList<Integer> paires =new ArrayList<>() ;
+        ArrayList<Integer> brelans =new ArrayList<>() ;
 
         for (Carte carte:main) {  // met toutes les valeurs distinctes de la main dans val
             if (!vals.contains(carte.getValeur()))
@@ -249,28 +274,62 @@ public class Croupier_v1 implements Constante {
                 }
             }
             switch (nbDeRep) { // entre les valeurs qui se repetent dans la liste correspondante, s'il y a un carré on le dit insyant car peut y avoir rien de plus interressant (a voir si ya 2 carrés)
-                case 2 -> paires.add(val);
-                case 3 -> brelans.add(val);
+                case 2 -> {
+                    if (paires.size() != 0 && val > paires.get(0))
+                        paires.add(0,val);
+                    else
+                        paires.add(val);
+                }
+                case 3 -> {
+                    if (brelans.size() != 0 && val > brelans.get(0))
+                        brelans.add(0,val);
+                    else
+                        brelans.add(val);
+                }
+
                 case 4 -> {
-                    Memcombi.put(main,11);
-                    return 11; }
-                default -> {}
+                    remonteCarteIndex(main,0,val);
+                    variable = max(main,4);
+                    remonteCarteIndex(main,4,variable);
+                    Memcombi.put(main,CARRE);
+                    return CARRE; }
             }
         }
         if (brelans.size()==1 && paires.size()>0){  // en fonction des rep quil y a dans la main, renvoie le bon, "score"
-            Memcombi.put(main,10);
-            return 10;
+            Memcombi.put(main,(PAIRE+BRELAN));
+            variable = remonteCarteIndex(main,0,brelans.get(0));
+            remonteCarteIndex(main,variable,paires.get(0));
+            Memcombi.put(main,(PAIRE+BRELAN));
+            return (PAIRE+BRELAN);
         }else if (brelans.size()>0){
-            Memcombi.put(main,7);
-            return 7;
+            Memcombi.put(main,BRELAN);
+            remonteCarteIndex(main,0,brelans.get(0));
+            variable = max(main,3);
+            remonteCarteIndex(main,3,variable);
+            variable = max(main,4);
+            remonteCarteIndex(main,4,variable);
+            Memcombi.put(main,BRELAN);
+            return BRELAN;
         }else if (paires.size() >1 ){
-            Memcombi.put(main,6);
-            return 6;
+            Memcombi.put(main,(PAIRE+PAIRE));
+            remonteCarteIndex(main,0,paires.get(0));
+            remonteCarteIndex(main,2,paires.get(1));
+            variable = max(main,4);
+            remonteCarteIndex(main,4,variable);
+            Memcombi.put(main,(PAIRE+PAIRE));
+            return (PAIRE+PAIRE);
         }else if (paires.size()==1) {
-            Memcombi.put(main,3);
-            return 3;
-        }else return 0; //0 pour non determiner, c plus simple pour l'algo
-        //plus simple avec un dictionnaire je pense
+            Memcombi.put(main,PAIRE);
+            remonteCarteIndex(main,0,paires.get(0));
+            variable = max(main,2);
+            remonteCarteIndex(main,2,variable);
+            variable = max(main,3);
+            remonteCarteIndex(main,3,variable);
+            variable = max(main,4);
+            remonteCarteIndex(main,4,variable);
+            Memcombi.put(main,PAIRE);
+            return PAIRE;
+        }else return NON_DETERMINER; //0 pour non determiner, c plus simple pour l'algo
     }
 
 
@@ -319,6 +378,34 @@ public class Croupier_v1 implements Constante {
         }
         return true;
 
+    }
+
+    public static int remonteCarteIndex(Carte[] main,int aPartirDe, int valeurCarte){
+
+        for (int i = 0 ; i < main.length ; i++){
+            if (main[i].getValeur() == valeurCarte) {
+                swapCarteIndex(main, aPartirDe, i);
+                aPartirDe++;
+            }
+        }
+        return aPartirDe;
+
+    }
+
+    public static int max(Carte[] main, int indexMin){
+        int max = main[indexMin].getValeur();
+        for (int i = indexMin+1 ; i < main.length ; i++)
+            if (main[i].getValeur() > max)
+                max = main[i].getValeur();
+        return max;
+    }
+
+    public static int max(ArrayList<Carte[]> mains,int indexCarte){
+        int max = mains.get(0)[indexCarte].getValeur();
+        for (int i = 1 ; i < mains.size() ; i++)
+            if (mains.get(i)[indexCarte].getValeur() > max)
+                max = mains.get(i)[indexCarte].getValeur();
+        return max;
     }
 
     public static void swapCarteIndex(Carte[] main, int index1, int index2 ){

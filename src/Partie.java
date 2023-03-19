@@ -150,9 +150,7 @@ public class Partie implements Constante {
                 krakzi = true;
             }
 
-            i++;
-            if (i == joueurs.length)
-                i = 0;
+            i = (i+1) % joueurs.length;
         }
         //a partir d'ici il faut veiller a ce que le joueur a qui c'est le tour de parler est a la tête de la FIFO
 
@@ -217,9 +215,7 @@ public class Partie implements Constante {
                     fileJoueur.add(joueurs[i]);
                 }
 
-                i++;
-                if (i == joueurs.length)
-                    i = 0;
+                i = (i+1) % joueurs.length;
             }
 
             miseMinimalPourSuivre = 0;
