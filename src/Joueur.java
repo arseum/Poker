@@ -67,6 +67,8 @@ public class Joueur implements Constante {
         this.blinde = blinde;
     }
 
+    public void gagneJeton(int jetons){ this.totalJeton += jetons;}
+
     public int getJetonSurTable() {
         return jetonSurTable;
     }

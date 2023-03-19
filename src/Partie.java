@@ -64,7 +64,6 @@ public class Partie implements Constante {
         while (!aUnGagnant()) {
             manche();
             remiseEnEtat();
-            System.out.println(timerGeneral);
             mancheNumero++; // sa sert a quoi ?
 
             //mettre a jour es blinde ici si besoin
@@ -130,7 +129,7 @@ public class Partie implements Constante {
 
     /**
      * methode qui permet le deroulement d'une manche
-     */ //Grosse methode du prog
+     */
     private void manche() throws CloneNotSupportedException {
 
         //init
@@ -143,6 +142,9 @@ public class Partie implements Constante {
         int nbSuiviRequis; // une fois que ce nombre est a 0 on peut retourner les carte et passer au tour de table suivant
         ArrayList<Joueur> fileJoueur = new ArrayList<>(); //FIFO - on push a la fin et on recupére a l'index 0
         //si le joueur est present dans la fifo c'est qu'il n'est pas couché
+        Carte[][] mainJoueur;
+        ArrayList<Carte[]> maingagnante;
+        ArrayList<Joueur> joueurGagnant;
 
         //mise en place de la fifo
         int i = 0;
@@ -234,16 +236,23 @@ public class Partie implements Constante {
 
         if (compteurTour == 4 && auMoin2JoueurPasCoucher()) {
             int nbJoueurFinal = fileJoueur.size();
-            Carte[][] mainJoueur = new Carte[nbJoueurFinal][2];
+            mainJoueur = new Carte[nbJoueurFinal][2];
             System.out.println("il faut determiner le vainqueur entre :");
             for (int indexJ = 0; indexJ < nbJoueurFinal; indexJ++)
                 mainJoueur[indexJ] = fileJoueur.get(indexJ).getMain();
-            Croupier_v1.determineGagnat_v1(riviere, mainJoueur);
+            maingagnante = Croupier_v1.determineGagnat_v1(riviere, mainJoueur);
+            joueurGagnant = determineJoueur(fileJoueur,maingagnante);
+            nbJoueurFinal = joueurGagnant.size();
+            for (Joueur j : joueurGagnant){
+                j.gagneJeton(pot/nbJoueurFinal);
+                System.out.println(j.getPseudo() + " recoit " + (pot/nbJoueurFinal) + " jetons !");
+            }
         } else {
             System.out.println("c'est le joueur " + fileJoueur.get(0).getPseudo() + " qui a gagné cette manche !");
+            fileJoueur.get(0).gagneJeton(pot);
+            System.out.println(fileJoueur.get(0).getPseudo() + " recoit " + pot + " jetons !");
         }
 
-        System.out.println("\nPartie test!\nAucun gain, desolé la banque garde tout ^^ ");
         System.out.println("\nVeuillez patienter 10s le temps que l'ordi melange les cartes");
 
         int millis = 5000;
@@ -268,6 +277,23 @@ public class Partie implements Constante {
             saisie = in.next();
         } while (!Objects.equals(saisie, "ok"));
 
+    }
+
+    private ArrayList<Joueur> determineJoueur(ArrayList<Joueur> fileJoueur,ArrayList<Carte[]> maingagnante ){
+
+        ArrayList<Joueur> gagnants = new ArrayList<>();
+        int nbBon;
+        for (Joueur j : fileJoueur) {
+            nbBon = 0;
+            for (Carte[] mains : maingagnante) {
+                for (Carte c : mains)
+                    if (c == j.getMain()[0] || c == j.getMain()[1])
+                        nbBon++;
+            }
+            if (nbBon == 2)
+                gagnants.add(j);
+        }
+        return gagnants;
     }
 
     private int rammasserJetonSurLaTable() {
@@ -331,18 +357,4 @@ public class Partie implements Constante {
         petiteBlindeActuelle += petiteBlindeActuelle;
         grosseBlindeActuelle += grosseBlindeActuelle;
     }
-
-    /*
-    public void passerJoueurSuivant(ArrayList<Joueur> fileJoueur){
-        Joueur joueurPasse = fileJoueur.get(0);
-
-        fileJoueur.set(0,null);
-        for (int i =1; i< fileJoueur.size(); i++){
-            fileJoueur.set(i-1, fileJoueur.get(i));
-
-        }
-        fileJoueur.add(joueurPasse);
-    }
-    */
-
 }
